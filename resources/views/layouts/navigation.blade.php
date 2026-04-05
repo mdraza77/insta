@@ -27,6 +27,15 @@
                         <span class="ms-3">Inbox</span>
                     </a>
                 </li>
+
+                <li>
+                    <button x-data="" x-on:click.prevent="$dispatch('open-modal', 'create-post')"
+                        class="flex items-center w-full p-3 text-white rounded-lg hover:bg-gray-900 group transition">
+                        <i class="fa-regular fa-square-plus text-xl w-7 text-gray-400 group-hover:text-purple-500"></i>
+                        <span class="ms-3">Create</span>
+                    </button>
+                </li>
+
                 <li>
                     <a href="{{ route('profile.edit') }}"
                         class="flex items-center p-3 text-white rounded-lg hover:bg-gray-900 group">

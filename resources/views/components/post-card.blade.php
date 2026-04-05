@@ -12,8 +12,17 @@
         <button class="text-gray-400"><i class="fa-solid fa-ellipsis"></i></button>
     </div>
 
-    <div class="w-full bg-spheria-gray border-y border-spheria-border">
-        <img src="https://picsum.photos/1080/1080" class="w-full h-auto object-cover" loading="lazy">
+    <div class="w-full bg-spheria-gray">
+        @if ($post->media && $post->media->isNotEmpty())
+            {{-- Agar ek se zyada image hai toh carousel (baad mein), abhi pehli dikhao --}}
+            <img src="{{ asset('storage/' . $post->media->first()->media_url) }}" class="w-full object-cover"
+                alt="Post Media">
+        @else
+            {{-- Agar koi image nahi mili toh placeholder dikhao taaki error na aaye --}}
+            <div class="w-full h-64 bg-gray-900 flex items-center justify-center">
+                <i class="fa-regular fa-image text-4xl text-gray-700"></i>
+            </div>
+        @endif
     </div>
 
     <div class="p-4">
