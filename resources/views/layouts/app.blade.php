@@ -15,6 +15,7 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
 </head>
 
 <body class="bg-black text-white antialiased font-sans">
@@ -26,7 +27,7 @@
                 {{ $slot }}
             </div>
         </main>
-        
+
         <aside class="hidden lg:block w-[350px] pr-8 pt-8">
             @include('includes.right-sidebar')
         </aside>
