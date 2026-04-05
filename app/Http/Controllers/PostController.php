@@ -31,22 +31,23 @@ class PostController extends Controller
         $request->validate([
             'caption' => 'nullable|string|max:1000',
             'media' => 'required|array',
-            'media.*' => 'image|mimes:jpg,jpeg,png|max:5120', // 5MB Max
+            'media.*' => 'required|file|mimetypes:image/jpeg,image/png,image/jpg,video/mp4,video/quicktime,video/x-msvideo|max:50000', // 50MB Max for videos
         ]);
 
-        // 1. Post entry create karo
         $post = auth()->user()->posts()->create([
             'caption' => $request->caption,
             'location' => $request->location,
         ]);
 
-        // 2. Multiple Media upload aur link karo
         foreach ($request->file('media') as $index => $file) {
             $path = $file->store('posts', 'public');
 
+            $mime = $file->getMimeType();
+            $type = str_contains($mime, 'video') ? 'video' : 'image';
+
             $post->media()->create([
                 'media_url' => $path,
-                'media_type' => 'image',
+                'media_type' => $type, // Ab ye dynamic hai (image ya video)
                 'order' => $index
             ]);
         }

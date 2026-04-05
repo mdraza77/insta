@@ -21,22 +21,36 @@
     </div>
 
     <div id="carousel-{{ $post->id }}" class="relative w-full" data-carousel="static">
-        <div class="relative aspect-square overflow-hidden border-y border-spheria-border">
+        <div class="relative aspect-square overflow-hidden border-y border-spheria-border bg-spheria-gray">
             @if ($post->media && $post->media->isNotEmpty())
                 @foreach ($post->media as $index => $item)
                     <div class="hidden duration-700 ease-in-out" data-carousel-item="{{ $index == 0 ? 'active' : '' }}">
-                        <img src="{{ asset('storage/' . $item->media_url) }}"
-                            class="absolute block w-full h-full object-cover top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                            alt="Post Media">
+                        @if ($item->media_type === 'video')
+                            {{-- Video Player --}}
+                            <video src="{{ asset('storage/' . $item->media_url) }}"
+                                class="absolute block w-full h-full object-cover top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                                autoplay muted playsinline controls>
+                            </video>
+                        @else
+                            {{-- Image Player --}}
+                            <img src="{{ asset('storage/' . $item->media_url) }}"
+                                class="absolute block w-full h-full object-cover top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                                alt="Post Media">
+                        @endif
                     </div>
                 @endforeach
+            @else
+                {{-- Placeholder if no media --}}
+                <div class="flex items-center justify-center h-full text-gray-700">
+                    <i class="fa-regular fa-image text-4xl"></i>
+                </div>
             @endif
         </div>
 
         @if ($post->media->count() > 1)
             <div class="absolute z-30 flex -translate-x-1/2 bottom-5 left-1/2 space-x-2">
                 @foreach ($post->media as $index => $item)
-                    <button type="button" class="w-2 h-2 rounded-full bg-white/50"
+                    <button type="button" class="w-1.5 h-1.5 rounded-full bg-white/50"
                         aria-current="{{ $index == 0 ? 'true' : 'false' }}" aria-label="Slide {{ $index + 1 }}"
                         data-carousel-slide-to="{{ $index }}"></button>
                 @endforeach
@@ -46,7 +60,7 @@
                 class="absolute top-0 start-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
                 data-carousel-prev>
                 <span
-                    class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-black/30 group-hover:bg-black/50">
+                    class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-black/20 group-hover:bg-black/40 transition">
                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 19-7-7 7-7" />
                     </svg>
@@ -56,7 +70,7 @@
                 class="absolute top-0 end-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
                 data-carousel-next>
                 <span
-                    class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-black/30 group-hover:bg-black/50">
+                    class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-black/20 group-hover:bg-black/40 transition">
                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7" />
                     </svg>
