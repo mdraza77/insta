@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use Illuminate\Http\Request;
+use App\Models\Like;
 
 class PostController extends Controller
 {
@@ -85,5 +86,25 @@ class PostController extends Controller
     public function destroy(Post $post)
     {
         //
+    }
+
+    public function toggleLike(Post $post)
+    {
+        $like = $post->likes()->where('user_id', auth()->id())->first();
+
+        if ($like) {
+            $like->delete();
+            $post->decrement('likes_count');
+            $status = 'unliked';
+        } else {
+            $post->likes()->create(['user_id' => auth()->id()]);
+            $post->increment('likes_count');
+            $status = 'liked';
+        }
+
+        return response()->json([
+            'status' => $status,
+            'likes_count' => $post->likes_count
+        ]);
     }
 }

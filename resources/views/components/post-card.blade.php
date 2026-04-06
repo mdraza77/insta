@@ -82,11 +82,47 @@
     <div class="p-4">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center space-x-5">
-                <i class="fa-regular fa-heart text-2xl cursor-pointer hover:text-red-500 transition text-white"></i>
-                <i
-                    class="fa-regular fa-comment text-2xl cursor-pointer hover:text-purple-500 transition text-white"></i>
-                <i
-                    class="fa-regular fa-paper-plane text-2xl cursor-pointer hover:text-blue-500 transition text-white"></i>
+                <div x-data="{
+                    liked: {{ $post->isLikedBy(auth()->user()) ? 'true' : 'false' }},
+                    count: {{ $post->likes_count }},
+                    toggleLike() {
+                        this.liked = !this.liked;
+                        this.liked ? this.count++ : this.count--;
+                
+                        fetch('{{ route('posts.like', $post) }}', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Content-Type': 'application/json'
+                                }
+                            }).then(res => res.json())
+                            .then(data => {
+                                this.count = data.likes_count;
+                            });
+                    }
+                }">
+                    <div class="flex items-center space-x-5 mb-4">
+                        {{-- Like Heart Icon --}}
+                        <button @click="toggleLike" class="focus:outline-none transition transform active:scale-125">
+                            <template x-if="liked">
+                                <i class="fa-solid fa-heart text-2xl text-red-500"></i>
+                            </template>
+                            <template x-if="!liked">
+                                <i class="fa-regular fa-heart text-2xl text-white hover:text-red-500"></i>
+                            </template>
+                        </button>
+
+                        <i
+                            class="fa-regular fa-comment text-2xl cursor-pointer hover:text-purple-500 transition text-white"></i>
+                        <i
+                            class="fa-regular fa-paper-plane text-2xl cursor-pointer hover:text-blue-500 transition text-white"></i>
+                    </div>
+
+                    {{-- Likes Count Display --}}
+                    <p class="text-sm font-bold text-white">
+                        <span x-text="count"></span> Likes
+                    </p>
+                </div>
             </div>
             <i class="fa-regular fa-bookmark text-2xl cursor-pointer hover:text-yellow-500 transition text-white"></i>
         </div>

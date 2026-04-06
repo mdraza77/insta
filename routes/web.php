@@ -23,6 +23,8 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+
+    Route::post('/posts/{post}/like', [PostController::class, 'toggleLike'])->name('posts.like');
 });
 
 require __DIR__ . '/auth.php';

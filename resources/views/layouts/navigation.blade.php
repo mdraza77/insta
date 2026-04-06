@@ -6,13 +6,23 @@
             </a>
 
             <ul class="space-y-4 font-medium">
+                @php
+                    $isActive = request()->routeIs('dashboard');
+                @endphp
+
                 <li>
-                    <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')"
-                        class="flex items-center p-3 text-white bg-gray-900 rounded-lg hover:bg-gray-900 group border-none">
+                    <a href="{{ route('dashboard') }}"
+                        class="flex items-center p-3 rounded-xl transition-all duration-200
+        {{ $isActive
+            ? 'bg-gradient-to-r from-[#0f172a] to-[#1e293b] text-white'
+            : 'text-gray-400 hover:bg-[#111827] hover:text-white' }}">
+
                         <i
-                            class="fa-solid fa-house text-xl w-7 {{ request()->routeIs('dashboard') ? 'text-purple-500' : 'text-gray-400' }}"></i>
+                            class="fa-solid fa-house text-xl w-7
+        {{ $isActive ? 'text-purple-500' : 'text-gray-400 group-hover:text-white' }}"></i>
+
                         <span class="ms-3">Feed</span>
-                    </x-responsive-nav-link>
+                    </a>
                 </li>
                 <li>
                     <a href="#" class="flex items-center p-3 text-white rounded-lg hover:bg-gray-900 group">
