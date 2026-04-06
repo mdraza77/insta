@@ -23,8 +23,7 @@ class CommentController extends Controller
             'body' => $request->body,
         ]);
 
-        $comment->load('user');
-        $comment->created_at = $comment->created_at->diffForHumans();
+        $comment->load(['user', 'replies.user']);
 
         return response()->json([
             'success' => true,
@@ -38,14 +37,7 @@ class CommentController extends Controller
             ->with(['user', 'replies.user'])
             ->whereNull('parent_id')
             ->latest()
-            ->get()
-            ->map(function ($comment) {
-                $comment->created_at = $comment->created_at->diffForHumans();
-                $comment->replies->each(function ($reply) {
-                    $reply->created_at = $reply->created_at->diffForHumans();
-                });
-                return $comment;
-            });
+            ->get();
 
         return response()->json([
             'success' => true,

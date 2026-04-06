@@ -1,72 +1,99 @@
-<div class="bg-black border border-spheria-border rounded-xl mb-8 overflow-hidden"
-     x-data="{
-         comments: [],
-         newComment: '',
-         showComments: false,
-         loading: false,
-         async loadComments() {
-             this.loading = true;
-             try {
-                 const res = await fetch('{{ route('comments.index', $post) }}');
-                 const data = await res.json();
-                 if (data.success) {
-                     this.comments = data.comments;
-                 }
-             } catch (error) {
-                 console.error('Error loading comments:', error);
-             } finally {
-                 this.loading = false;
-             }
-         },
-         async submitComment() {
-             if (!this.newComment.trim()) return;
+<div class="bg-black border border-spheria-border rounded-xl mb-8 overflow-hidden" x-data="{
+    comments: [],
+    newComment: '',
+    showComments: false,
+    loading: false,
+    replyTo: null,
+    replyText: '',
+    async loadComments() {
+        this.loading = true;
+        try {
+            const res = await fetch('{{ route('comments.index', $post) }}');
+            const data = await res.json();
+            if (data.success) {
+                this.comments = data.comments;
+            }
+        } catch (error) {
+            console.error('Error loading comments:', error);
+        } finally {
+            this.loading = false;
+        }
+    },
+    async submitComment() {
+        if (!this.newComment.trim()) return;
 
-             try {
-                 const res = await fetch('{{ route('comments.store', $post) }}', {
-                     method: 'POST',
-                     headers: {
-                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                         'Content-Type': 'application/json'
-                     },
-                     body: JSON.stringify({ body: this.newComment })
-                 });
-                 const data = await res.json();
-                 if (data.success) {
-                     this.comments.unshift(data.comment);
-                     this.newComment = '';
-                     // Refresh comment count
-                     window.dispatchEvent(new CustomEvent('comment-added', { detail: { postId: {{ $post->id }} } }));
-                 }
-             } catch (error) {
-                 console.error('Error submitting comment:', error);
-             }
-         },
-         async deleteComment(commentId) {
-             if (!confirm('Are you sure you want to delete this comment?')) return;
+        try {
+            const res = await fetch('{{ route('comments.store', $post) }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ body: this.newComment })
+            });
+            const data = await res.json();
+            if (data.success) {
+                this.comments.unshift(data.comment);
+                this.newComment = '';
+                // Refresh comment count
+                window.dispatchEvent(new CustomEvent('comment-added', { detail: { postId: {{ $post->id }} } }));
+            }
+        } catch (error) {
+            console.error('Error submitting comment:', error);
+        }
+    },
+    async submitReply(commentId) {
+        if (!this.replyText.trim()) return;
 
-             try {
-                 const res = await fetch(`/comments/${commentId}`, {
-                     method: 'DELETE',
-                     headers: {
-                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                         'Content-Type': 'application/json'
-                     }
-                 });
-                 const data = await res.json();
-                 if (data.success) {
-                     this.comments = this.comments.filter(c => c.id !== commentId);
-                 }
-             } catch (error) {
-                 console.error('Error deleting comment:', error);
-             }
-         },
-         toggleComments() {
-             this.showComments = !this.showComments;
-             if (this.showComments && this.comments.length === 0) {
-                 this.loadComments();
-             }
-         }
-     }">
+        try {
+            const res = await fetch('{{ route('comments.store', $post) }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    body: this.replyText,
+                    parent_id: commentId
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                // Reload comments to show new reply
+                await this.loadComments();
+                this.replyTo = null;
+                this.replyText = '';
+            }
+        } catch (error) {
+            console.error('Error submitting reply:', error);
+        }
+    },
+    async deleteComment(commentId) {
+        if (!confirm('Are you sure you want to delete this comment?')) return;
+
+        try {
+            const res = await fetch(`/comments/${commentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await res.json();
+            if (data.success) {
+                this.comments = this.comments.filter(c => c.id !== commentId);
+            }
+        } catch (error) {
+            console.error('Error deleting comment:', error);
+        }
+    },
+    toggleComments() {
+        this.showComments = !this.showComments;
+        if (this.showComments && this.comments.length === 0) {
+            this.loadComments();
+        }
+    }
+}">
     <div class="flex items-center justify-between p-4">
         <div class="flex items-center space-x-3">
             <div class="w-10 h-10 rounded-full overflow-hidden border border-spheria-border bg-gray-900">
@@ -92,7 +119,8 @@
         <div class="relative aspect-square overflow-hidden border-y border-spheria-border bg-spheria-gray">
             @if ($post->media && $post->media->isNotEmpty())
                 @foreach ($post->media as $index => $item)
-                    <div class="hidden duration-700 ease-in-out" data-carousel-item="{{ $index == 0 ? 'active' : '' }}">
+                    <div class="hidden duration-700 ease-in-out"
+                        data-carousel-item="{{ $index == 0 ? 'active' : '' }}">
                         @if ($item->media_type === 'video')
                             {{-- Video Player --}}
                             <video src="{{ asset('storage/' . $item->media_url) }}"
@@ -180,8 +208,7 @@
                             </template>
                         </button>
 
-                        <i
-                            class="fa-regular fa-comment text-2xl cursor-pointer hover:text-purple-500 transition text-white"
+                        <i class="fa-regular fa-comment text-2xl cursor-pointer hover:text-purple-500 transition text-white"
                             @click="toggleComments"></i>
                         <i
                             class="fa-regular fa-paper-plane text-2xl cursor-pointer hover:text-blue-500 transition text-white"></i>
@@ -198,7 +225,7 @@
 
         <div class="space-y-1">
             {{-- Likes Count --}}
-            <p class="text-sm font-bold text-white">{{ number_format($post->likes_count) }} Likes</p>
+            {{-- <p class="text-sm font-bold text-white">{{ number_format($post->likes_count) }} Likes</p> --}}
 
             {{-- Caption --}}
             @if ($post->caption)
@@ -233,9 +260,9 @@
                         <div class="flex items-start space-x-2">
                             {{-- Comment User Avatar --}}
                             <a href="#" class="flex-shrink-0">
-                                <img :src="comment.user.profile_picture 
-                                    ? '/storage/' + comment.user.profile_picture 
-                                    : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(comment.user.name)"
+                                <img :src="comment.user.profile_picture ?
+                                    '/storage/' + comment.user.profile_picture :
+                                    'https://ui-avatars.com/api/?name=' + encodeURIComponent(comment.user.name)"
                                     :alt="comment.user.name" 
                                     class="w-6 h-6 rounded-full object-cover border border-gray-700">
                             </a>
@@ -244,7 +271,7 @@
                             <div class="flex-1">
                                 <div class="bg-gray-900 rounded-lg px-3 py-2">
                                     <p class="text-white">
-                                        <a href="#" 
+                                        <a href="#"
                                            class="font-bold text-sm text-white hover:underline"
                                            x-text="comment.user.username || comment.user.name">
                                         </a>
@@ -254,63 +281,80 @@
                                 
                                 {{-- Comment Actions --}}
                                 <div class="flex items-center space-x-3 mt-1 px-2">
-                                    <span class="text-xs text-gray-500" x-text="comment.created_at"></span>
+                                    <span class="text-xs text-gray-500" x-text="comment.created_at_formatted"></span>
                                     
-                                    <button @click="deleteComment(comment.id)" 
-                                            class="text-xs text-red-500 hover:text-red-400">
-                                        Delete
-                                    </button>
-                                </div>
-                                
-                                {{-- Replies --}}
-                                <template x-if="comment.replies && comment.replies.length > 0">
-                                    <div class="mt-2 ml-8 space-y-2">
-                                        <template x-for="reply in comment.replies" :key="reply.id">
-                                            <div class="text-sm">
-                                                <p class="text-white">
-                                                    <a href="#" 
-                                                       class="font-bold text-sm text-white hover:underline"
-                                                       x-text="reply.user.username || reply.user.name">
-                                                    </a>
-                                                    <span class="text-sm" x-text="reply.body"></span>
-                                                </p>
-                                                <div class="flex items-center space-x-3 mt-1">
-                                                    <span class="text-xs text-gray-500" x-text="reply.created_at"></span>
-                                                    <button @click="deleteComment(reply.id)" 
-                                                            class="text-xs text-red-500 hover:text-red-400">
-                                                        Delete
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </template>
+                                    <button @click="replyTo = comment.id; replyText = ' '"
+                                    class="text-xs text-gray-500 hover:text-gray-300 font-semibold">
+                                Reply
+                                </button>
+
+                                <button @click="deleteComment(comment.id)"
+                                    class="text-xs text-red-500 hover:text-red-400">
+                                    Delete
+                                </button>
+                        </div>
+
+                        {{-- Reply Input --}}
+                        <div x-show="replyTo === comment.id" x-cloak class="mt-2 ml-2">
+                            <form @submit.prevent="submitReply(comment.id)" class="flex items-center space-x-2">
+                                <input type="text" x-model="replyText" placeholder="Reply to this comment..."
+                                    class="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none">
+                                <button type="submit"
+                                    class="text-blue-500 text-sm font-semibold hover:text-blue-400 transition">
+                                    Reply
+                                </button>
+                                <button type="button" @click="replyTo = null"
+                                    class="text-gray-500 text-sm hover:text-gray-300">
+                                    Cancel
+                                </button>
+                            </form>
+                        </div>
+
+                        {{-- Replies --}}
+                        <template x-if="comment.replies && comment.replies.length > 0">
+                            <div class="mt-2 ml-8 space-y-2">
+                                <template x-for="reply in comment.replies" :key="reply.id">
+                                    <div class="text-sm">
+                                        <p class="text-white">
+                                            <a href="#" class="font-bold text-sm text-white hover:underline"
+                                                x-text="reply.user.username || reply.user.name">
+                                            </a>
+                                            <span class="text-sm" x-text="reply.body"></span>
+                                        </p>
+                                        <div class="flex items-center space-x-3 mt-1">
+                                            <span class="text-xs text-gray-500"
+                                                x-text="reply.created_at_formatted"></span>
+                                            <button @click="deleteComment(reply.id)"
+                                                class="text-xs text-red-500 hover:text-red-400">
+                                                Delete
+                                            </button>
+                                        </div>
                                     </div>
                                 </template>
                             </div>
-                        </div>
+                        </template>
                     </div>
-                </template>
-
-                {{-- No Comments Message --}}
-                <div x-show="comments.length === 0" class="text-center py-4 text-gray-500 text-sm">
-                    No comments yet. Be the first to comment!
-                </div>
-            </div>
-
-            {{-- Comment Input --}}
-            <div class="mt-4 border-t border-gray-800 pt-4">
-                <form @submit.prevent="submitComment" class="flex items-center space-x-2">
-                    <input type="text" 
-                           x-model="newComment"
-                           placeholder="Add a comment..."
-                           class="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none">
-                    <button type="submit" 
-                            class="text-blue-500 text-sm font-semibold hover:text-blue-400 transition"
-                            :disabled="!newComment.trim()"
-                            :class="{ 'opacity-50 cursor-not-allowed': !newComment.trim() }">
-                        Post
-                    </button>
-                </form>
             </div>
         </div>
+        </template>
+
+        {{-- No Comments Message --}}
+        <div x-show="comments.length === 0" class="text-center py-4 text-gray-500 text-sm">
+            No comments yet. Be the first to comment!
+        </div>
     </div>
+
+    {{-- Comment Input --}}
+    <div class="mt-4 border-t border-gray-800 pt-4">
+        <form @submit.prevent="submitComment" class="flex items-center space-x-2">
+            <input type="text" x-model="newComment" placeholder="Add a comment..."
+                class="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none">
+            <button type="submit" class="text-blue-500 text-sm font-semibold hover:text-blue-400 transition"
+                :disabled="!newComment.trim()" :class="{ 'opacity-50 cursor-not-allowed': !newComment.trim() }">
+                Post
+            </button>
+        </form>
+    </div>
+</div>
+</div>
 </div>

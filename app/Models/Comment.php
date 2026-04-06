@@ -8,6 +8,8 @@ class Comment extends Model
 {
     protected $fillable = ['user_id', 'post_id', 'parent_id', 'body'];
 
+    protected $appends = ['created_at_formatted'];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -21,5 +23,10 @@ class Comment extends Model
     public function replies()
     {
         return $this->hasMany(Comment::class, 'parent_id');
+    }
+
+    public function getCreatedAtFormattedAttribute()
+    {
+        return $this->created_at->diffForHumans();
     }
 }
