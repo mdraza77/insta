@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Post extends Model
 {
     protected $fillable = ['user_id', 'image_url', 'caption', 'location'];
+    
+    protected $with = ['user'];
+    
+    protected $appends = ['likes_count', 'comments_count'];
 
     public function user()
     {
@@ -22,9 +26,24 @@ class Post extends Model
     {
         return $this->hasMany(Like::class);
     }
+    
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 
     public function isLikedBy($user)
     {
         return $this->likes()->where('user_id', $user->id)->exists();
+    }
+    
+    public function getLikesCountAttribute()
+    {
+        return $this->likes()->count();
+    }
+    
+    public function getCommentsCountAttribute()
+    {
+        return $this->comments()->count();
     }
 }
