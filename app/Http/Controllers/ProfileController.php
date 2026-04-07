@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -56,5 +57,18 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    public function show($username)
+    {
+        // User ko uske username se dhoondo
+        $user = User::where('username', $username)
+            ->withCount(['posts', 'followers', 'following'])
+            ->firstOrFail();
+
+        // Us user ki saari posts fetch karo
+        $posts = $user->posts()->with('media')->latest()->get();
+
+        return view('profile.show', compact('user', 'posts'));
     }
 }

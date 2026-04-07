@@ -47,7 +47,7 @@
                 </li>
 
                 <li>
-                    <a href="{{ route('profile.edit') }}"
+                    <a href="{{ route('profile.show', auth()->user()->username) }}"
                         class="flex items-center p-3 text-white rounded-lg hover:bg-gray-900 group">
                         <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('images/default-avatar.png') }}"
                             class="w-7 h-7 rounded-full border border-gray-700">

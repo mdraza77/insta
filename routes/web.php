@@ -33,6 +33,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 
     Route::post('/user/{user}/follow', [FollowController::class, 'toggleFollow'])->name('user.follow');
+
+    Route::get('/{username}', [ProfileController::class, 'show'])->name('profile.show');
 });
 
 require __DIR__ . '/auth.php';

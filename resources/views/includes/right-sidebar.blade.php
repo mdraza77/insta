@@ -1,5 +1,5 @@
 <div class="fixed w-[320px] hidden lg:block">
-    <div class="flex items-center justify-between mb-6">
+    {{-- <div class="flex items-center justify-between mb-6">
         <div class="flex items-center space-x-4 cursor-pointer">
             <div class="w-12 h-12 rounded-full overflow-hidden border border-spheria-border bg-gray-900">
                 <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}"
@@ -13,7 +13,7 @@
             </div>
         </div>
         <a href="{{ route('profile.edit') }}" class="text-xs font-bold text-purple-500 hover:text-purple-400">Switch</a>
-    </div>
+    </div> --}}
 
     <div class="flex items-center justify-between mb-4">
         <span class="text-sm font-bold text-gray-400 uppercase tracking-wider text-[11px]">Suggested for you</span>
@@ -41,16 +41,19 @@
                 }
             }">
 
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 rounded-full overflow-hidden border border-spheria-border bg-gray-900">
-                        <img src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) }}"
-                            class="w-full h-full object-cover">
+                <a href="{{ route('profile.show', $user->username) }}">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-full overflow-hidden border border-spheria-border bg-gray-900">
+                            <img src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) }}"
+                                class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h5 class="text-xs font-bold text-white leading-none">{{ $user->username ?? $user->name }}
+                            </h5>
+                            <p class="text-[10px] text-gray-500 mt-0.5">Suggested for you</p>
+                        </div>
                     </div>
-                    <div>
-                        <h5 class="text-xs font-bold text-white leading-none">{{ $user->username ?? $user->name }}</h5>
-                        <p class="text-[10px] text-gray-500 mt-0.5">Suggested for you</p>
-                    </div>
-                </div>
+                </a>
 
                 <button @click="toggleFollow"
                     :class="isFollowing ? 'text-gray-400' : 'text-purple-500 hover:text-white'"

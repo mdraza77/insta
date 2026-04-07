@@ -96,16 +96,20 @@
 }">
     <div class="flex items-center justify-between p-4">
         <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-full overflow-hidden border border-spheria-border bg-gray-900">
-                {{-- User Profile Picture --}}
-                <img src="{{ $post->user->profile_picture ? asset('storage/' . $post->user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($post->user->name) }}"
-                    alt="{{ $post->user->name }}" class="w-full h-full object-cover">
-            </div>
+            <a href="{{ route('profile.show', $post->user->username) }}">
+                <div class="w-10 h-10 rounded-full overflow-hidden border border-spheria-border bg-gray-900">
+                    {{-- User Profile Picture --}}
+                    <img src="{{ $post->user->profile_picture ? asset('storage/' . $post->user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($post->user->name) }}"
+                        alt="{{ $post->user->name }}" class="w-full h-full object-cover">
+                </div>
+            </a>
             <div>
-                {{-- User Name --}}
-                <h4 class="font-bold text-sm leading-none text-white">
-                    {{ $post->user->username ?? $post->user->name }}
-                </h4>
+                <a href="{{ route('profile.show', $post->user->username) }}">
+                    {{-- User Name --}}
+                    <h4 class="font-bold text-sm leading-none text-white">
+                        {{ $post->user->username ?? $post->user->name }}
+                    </h4>
+                </a>
                 {{-- Location --}}
                 @if ($post->location)
                     <span class="text-[10px] text-gray-500 uppercase tracking-tighter">{{ $post->location }}</span>
