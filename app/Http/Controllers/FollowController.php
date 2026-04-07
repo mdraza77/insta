@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class FollowController extends Controller
 {
@@ -11,25 +12,36 @@ class FollowController extends Controller
     {
         $authUser = auth()->user();
 
-        // Prevent self-following
+        // 1. Prevent self-following
         if ($authUser->id === $user->id) {
             return response()->json(['error' => 'You cannot follow yourself.'], 403);
         }
 
-        if ($authUser->isFollowing($user)) {
-            // Unfollow logic
-            $authUser->following()->detach($user->id);
-            $status = 'follow';
-        } else {
-            // Follow logic (Default status is accepted as per your migration)
-            $authUser->following()->attach($user->id, ['status' => 'accepted']);
-            $status = 'following';
-        }
+        try {
+            if ($authUser->isFollowing($user)) {
+                // 2. Unfollow Logic
+                $authUser->following()->detach($user->id);
+                $status = 'follow';
+            } else {
+                // 3. Follow Logic
+                // syncWithoutDetaching ensures no duplicate entries are created
+                $authUser->following()->syncWithoutDetaching([
+                    $user->id => ['status' => 'accepted']
+                ]);
 
-        return response()->json([
-            'status' => $status,
-            'followers_count' => $user->followers()->count(),
-            'following_count' => $user->following()->count(),
-        ]);
+                // Task: Yahan Notification trigger kar sakte ho
+                // Notification::send($user, new NewFollower($authUser));
+
+                $status = 'following';
+            }
+
+            return response()->json([
+                'status' => $status,
+                'followers_count' => $user->followers()->count(),
+                'following_count' => $user->following()->count(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Something went wrong'], 500);
+        }
     }
 }

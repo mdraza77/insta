@@ -34,4 +34,25 @@ class User extends Authenticatable
     {
         return $this->hasMany(Post::class);
     }
+
+    // Followers (Log jo mujhe follow kar rahe hain)
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'followers', 'following_id', 'follower_id')
+            ->withPivot('status')
+            ->withTimestamps();
+    }
+
+    // Following (Log jinhe main follow kar raha hoon)
+    public function following()
+    {
+        return $this->belongsToMany(User::class, 'followers', 'follower_id', 'following_id')
+            ->withPivot('status')
+            ->withTimestamps();
+    }
+
+    public function isFollowing(User $user)
+    {
+        return $this->following()->where('following_id', $user->id)->exists();
+    }
 }

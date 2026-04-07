@@ -35,7 +35,7 @@
         </main>
 
         <aside class="hidden lg:block w-[350px] pr-8 pt-8">
-            @include('includes.right-sidebar')
+            @include('includes.right-sidebar', ['suggestions' => $suggestions ?? collect()])
         </aside>
     </div>
 </body>
