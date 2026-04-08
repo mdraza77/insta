@@ -1,11 +1,11 @@
 <aside class="fixed top-0 left-0 z-40 w-64 h-screen hidden md:block border-r border-gray-800 bg-black transition-all">
-    <div class="h-full px-4 py-8 overflow-y-auto flex flex-col justify-between">
+    <div class="h-full px-4 py-6 overflow-y-auto flex flex-col justify-between">
         <div>
             <a href="{{ route('dashboard') }}" class="flex items-center ps-2 mb-10">
                 <span class="text-2xl font-bold italic text-white tracking-tighter">Insta</span>
             </a>
 
-            <ul class="space-y-4 font-medium">
+            <ul class="space-y-3 font-medium">
                 @php
                     $isActive = request()->routeIs('dashboard');
                 @endphp
@@ -21,9 +21,24 @@
                             class="fa-solid fa-house text-xl w-7
         {{ $isActive ? 'text-purple-500' : 'text-gray-400 group-hover:text-white' }}"></i>
 
-                        <span class="ms-3">Feed</span>
+                        <span class="ms-3">Home</span>
                     </a>
                 </li>
+
+                <li>
+                    <a href="#" class="flex items-center p-3 text-white rounded-lg hover:bg-gray-900 group">
+                        <i class="fa-regular fa-circle-play text-xl w-7 text-gray-400 group-hover:text-purple-500"></i>
+                        <span class="ms-3">Reels</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#" class="flex items-center p-3 text-white rounded-lg hover:bg-gray-900 group">
+                        <i class="fa-solid fa-paper-plane text-xl w-7 text-gray-400 group-hover:text-purple-500"></i>
+                        <span class="ms-3">Messages</span>
+                    </a>
+                </li>
+
                 <li>
                     <a href="#" class="flex items-center p-3 text-white rounded-lg hover:bg-gray-900 group">
                         <i
@@ -31,15 +46,17 @@
                         <span class="ms-3">Search</span>
                     </a>
                 </li>
+
                 <li>
-                    <a href="#" class="flex items-center p-3 text-white rounded-lg hover:bg-gray-900 group">
-                        <i class="fa-solid fa-paper-plane text-xl w-7 text-gray-400 group-hover:text-purple-500"></i>
-                        <span class="ms-3">Inbox</span>
-                    </a>
+                    <button x-d ata="" x-on:click.prevent="$dispatch('open-modal', 'create-post')"
+                        class="flex items-center w-full p-3 text-white rounded-lg hover:bg-gray-900 group transition">
+                        <i class="fa-regular fa-bell text-xl w-7 text-gray-400 group-hover:text-purple-500"></i>
+                        <span class="ms-3">Notifications</span>
+                    </button>
                 </li>
 
                 <li>
-                    <button x-data="" x-on:click.prevent="$dispatch('open-modal', 'create-post')"
+                    <button x-d ata="" x-on:click.prevent="$dispatch('open-modal', 'create-post')"
                         class="flex items-center w-full p-3 text-white rounded-lg hover:bg-gray-900 group transition">
                         <i class="fa-regular fa-square-plus text-xl w-7 text-gray-400 group-hover:text-purple-500"></i>
                         <span class="ms-3">Create</span>
@@ -47,9 +64,17 @@
                 </li>
 
                 <li>
+                    <a href="{{ route('profile.edit') }}"
+                        class="flex items-center p-3 text-white rounded-lg hover:bg-gray-900 group">
+                        <i class="fa-solid fa-gear text-xl w-7 text-gray-400 group-hover:text-purple-500"></i>
+                        <span class="ms-3">Settings</span>
+                    </a>
+                </li>
+
+                <li>
                     <a href="{{ route('profile.show', auth()->user()->username) }}"
                         class="flex items-center p-3 text-white rounded-lg hover:bg-gray-900 group">
-                        <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('images/default-avatar.png') }}"
+                        <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}"
                             class="w-7 h-7 rounded-full border border-gray-700">
                         <span class="ms-3">Profile</span>
                     </a>
@@ -58,8 +83,9 @@
         </div>
 
         <form method="POST" action="{{ route('logout') }}" class="px-2">
+            {{-- onclick="return confirm('Are you sure to Logout?')" --}}
             @csrf
-            <button type="submit" onclick="return confirm('Are you sure to Logout?')"
+            <button type="submit"
                 class="flex items-center p-3 w-full text-red-500 hover:bg-red-950/30 rounded-lg transition">
                 <i class="fa-solid fa-right-from-bracket w-7"></i>
                 <span>Logout</span>
@@ -77,8 +103,8 @@
     <a href="#" class="p-2"><i class="fa-solid fa-magnifying-glass text-2xl text-gray-400"></i></a>
     <a href="#" class="p-2 text-3xl"><i class="fa-regular fa-square-plus text-gray-400"></i></a>
     <a href="#" class="p-2 text-2xl"><i class="fa-solid fa-clapperboard text-gray-400"></i></a>
-    <a href="{{ route('profile.edit') }}">
-        <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : asset('assets/images/default-avatar.png') }}"
+    <a href="{{ route('profile.show', auth()->user()->username) }}">
+        <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}"
             class="w-8 h-8 rounded-full border {{ request()->routeIs('profile.edit') ? 'border-purple-500' : 'border-gray-700' }}">
     </a>
 </nav>
