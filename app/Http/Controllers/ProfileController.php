@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -70,5 +71,28 @@ class ProfileController extends Controller
         $posts = $user->posts()->with('media')->latest()->get();
 
         return view('profile.show', compact('user', 'posts'));
+    }
+
+    public function updatePhoto(Request $request)
+    {
+        $request->validate([
+            'photo' => 'required|image|max:2048'
+        ]);
+
+        $user = auth()->user();
+
+        // Old Image Delete
+        if ($user->profile_picture) {
+            Storage::disk('public')->delete($user->profile_picture);
+        }
+
+        // file store in local storage
+        $path = $request->file('photo')->store('profiles', 'public');
+
+        // save path in DB
+        $user->profile_picture = $path;
+        $user->save();
+
+        return back();
     }
 }

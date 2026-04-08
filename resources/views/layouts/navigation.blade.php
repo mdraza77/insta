@@ -48,7 +48,7 @@
                 </li>
 
                 <li>
-                    <button x-d ata="" x-on:click.prevent="$dispatch('open-modal', 'create-post')"
+                    <button
                         class="flex items-center w-full p-3 text-white rounded-lg hover:bg-gray-900 group transition">
                         <i class="fa-regular fa-bell text-xl w-7 text-gray-400 group-hover:text-purple-500"></i>
                         <span class="ms-3">Notifications</span>
@@ -56,7 +56,7 @@
                 </li>
 
                 <li>
-                    <button x-d ata="" x-on:click.prevent="$dispatch('open-modal', 'create-post')"
+                    <button x-data="" x-on:click.prevent="$dispatch('open-modal', 'create-post')"
                         class="flex items-center w-full p-3 text-white rounded-lg hover:bg-gray-900 group transition">
                         <i class="fa-regular fa-square-plus text-xl w-7 text-gray-400 group-hover:text-purple-500"></i>
                         <span class="ms-3">Create</span>

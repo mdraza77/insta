@@ -3,9 +3,27 @@
         {{-- Profile Header Section --}}
         <div class="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12 border-b border-gray-800 pb-10">
             {{-- Avatar --}}
-            <div class="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-2 border-purple-600 p-1">
-                <img src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) }}"
-                    class="w-full h-full object-cover rounded-full">
+            <div class="relative w-32 h-32 md:w-40 md:h-40">
+
+                <!-- IMAGE -->
+                <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}"
+                    class="w-full h-full object-cover rounded-full border-2 border-purple-600 p-1">
+
+                @if (auth()->id() === $user->id)
+                    <!-- Small Button -->
+                    <form method="POST" action="{{ route('profile.photo.update') }}" enctype="multipart/form-data"
+                        class="absolute bottom-1 right-1">
+                        @csrf
+
+                        <label
+                            class="bg-transparent hover:bg-white/10 backdrop-blur-sm text-white p-2 rounded-full cursor-pointer transition border-purple-600">
+                            <i class="fa-solid fa-pen text-xs"></i>
+
+                            <input type="file" name="photo" class="hidden" onchange="this.form.submit()">
+                        </label>
+                    </form>
+                @endif
+
             </div>
 
             {{-- Info --}}
