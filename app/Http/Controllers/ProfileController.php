@@ -122,4 +122,19 @@ class ProfileController extends Controller
 
         return back();
     }
+
+    public function updatePrivacy(Request $request)
+    {
+        // dd($request->all());
+        $user = $request->user();
+
+        $user->update([
+            'is_private' => $request->has('is_private'),
+            'show_activity' => $request->has('show_activity'),
+            'read_receipts' => $request->has('read_receipts'),
+            'restrict_mentions' => $request->has('restrict_mentions'),
+        ]);
+
+        return back()->with('status', 'privacy-updated');
+    }
 }

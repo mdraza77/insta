@@ -51,11 +51,11 @@
             <div id="password" class="tab-content hidden">
                 @include('profile.partials.update-password-form')
             </div>
-
+            
             <!-- PRIVACY -->
             <div id="privacy" class="tab-content hidden">
                 <h2 class="text-xl font-bold mb-4">Privacy</h2>
-                <p class="text-gray-400">Coming soon...</p>
+                @include('profile.partials.privacy')
             </div>
 
         </div>

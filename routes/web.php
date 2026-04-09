@@ -29,6 +29,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])
         ->middleware('auth')
         ->name('profile.photo.update');
+    Route::patch('/profile/privacy', [ProfileController::class, 'updatePrivacy'])
+        ->middleware('auth')
+        ->name('profile.privacy.update');
 
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
     Route::post('/posts/{post}/like', [PostController::class, 'toggleLike'])->name('posts.like');
