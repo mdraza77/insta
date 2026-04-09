@@ -21,7 +21,7 @@
         <div>
             <label class="text-sm text-gray-400">Username</label>
             <input type="text" name="username" value="{{ old('username', $user->username) }}"
-                class="mt-1 w-full px-4 py-3 rounded-lg bg-[#1e1e2f] border border-gray-700 text-white focus:ring-2 focus:ring-purple-500 outline-none">
+                class="mt-1 w-full px-4 py-3 rounded-lg bg-[#1e1e2f] border border-gray-700 text-white">
 
             <p class="text-xs text-gray-500 mt-1">
                 You can change your username only once within 14 days.

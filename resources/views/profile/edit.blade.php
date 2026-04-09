@@ -8,7 +8,7 @@
             @php
                 $menus = [
                     ['id' => 'profile', 'icon' => 'fa-user', 'label' => 'Edit Profile'],
-                    ['id' => 'account', 'icon' => 'fa-circle-info', 'label' => 'Account'],
+                    ['id' => 'account-informations', 'icon' => 'fa-circle-info', 'label' => 'Account Informations'],
                     ['id' => 'password', 'icon' => 'fa-lock', 'label' => 'Password'],
                     ['id' => 'privacy', 'icon' => 'fa-shield', 'label' => 'Privacy'],
                 ];
@@ -42,9 +42,9 @@
             </div>
 
             <!-- ACCOUNT -->
-            <div id="account" class="tab-content hidden">
+            <div id="account-informations" class="tab-content hidden">
                 <h2 class="text-xl font-bold mb-4">Account Info</h2>
-                <p class="text-gray-400">Coming soon...</p>
+                @include('profile.partials.account-informations')
             </div>
 
             <!-- PASSWORD -->
