@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,15 +27,41 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        // dd($request->all());
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username,' . $request->user()->id,
+            'email' => 'required|string|email|max:255|unique:users,email,' . $request->user()->id,
+            'bio' => 'nullable|string|max:150',
+            'website' => 'nullable|url|max:255',
+            'gender' => 'nullable|string|in:male,female,other',
+            'phone' => 'nullable|string|max:20',
+            'photo' => 'nullable|image|max:2048',
+        ]);
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        Log::info('Profile update request validated successfully.');
+
+        $user = $request->user();
+
+        // 🔥 IMAGE UPLOAD
+        if ($request->hasFile('photo')) {
+
+            // old delete
+            if ($user->profile_picture && Storage::disk('public')->exists($user->profile_picture)) {
+                Storage::disk('public')->delete($user->profile_picture);
+            }
+
+            $path = $request->file('photo')->store('profiles', 'public');
+
+            $user->profile_picture = $path;
         }
 
-        $request->user()->save();
+        // 🔥 UPDATE DATA
+        $user->update(['name' => $request->name, 'username' => $request->username, 'email' => $request->email, 'bio' => $request->bio, 'website' => $request->website, 'gender' => $request->gender, 'phone' => $request->phone,]);
+
+        Log::info('User profile updated successfully.', ['user_id' => $user->id]);
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }

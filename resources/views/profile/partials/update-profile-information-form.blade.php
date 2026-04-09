@@ -1,64 +1,114 @@
-<section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Profile Information') }}
-        </h2>
+<section class="max-w-2xl">
 
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __("Update your account's profile information and email address.") }}
-        </p>
-    </header>
+    <h2 class="text-xl font-semibold text-white mb-6">Edit Profile</h2>
 
-    <form id="send-verification" method="post" action="{{ route('verification.send') }}">
-        @csrf
-    </form>
-
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="space-y-5">
         @csrf
         @method('patch')
 
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
-        </div>
-
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
-            <x-input-error class="mt-2" :messages="$errors->get('email')" />
-
-            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
-                <div>
-                    <p class="text-sm mt-2 text-gray-800">
-                        {{ __('Your email address is unverified.') }}
-
-                        <button form="send-verification" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            {{ __('Click here to re-send the verification email.') }}
-                        </button>
-                    </p>
-
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600">
-                            {{ __('A new verification link has been sent to your email address.') }}
-                        </p>
-                    @endif
-                </div>
-            @endif
-        </div>
-
+        <!-- PROFILE PHOTO -->
         <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+            <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}"
+                class="w-16 h-16 rounded-full object-cover">
 
-            @if (session('status') === 'profile-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Saved.') }}</p>
-            @endif
+            <label class="text-sm text-purple-400 cursor-pointer hover:underline">
+                <i class="fa-solid fa-pencil"></i> Change Image
+                <input type="file" name="photo" class="hidden">
+            </label>
         </div>
+
+        <!-- USERNAME -->
+        <div>
+            <label class="text-sm text-gray-400">Username</label>
+            <input type="text" name="username" value="{{ old('username', $user->username) }}"
+                class="mt-1 w-full px-4 py-3 rounded-lg bg-[#1e1e2f] border border-gray-700 text-white focus:ring-2 focus:ring-purple-500 outline-none">
+
+            <p class="text-xs text-gray-500 mt-1">
+                You can change your username only once within 14 days.
+            </p>
+
+            @error('username')
+                <p class="text-red-400 text-sm">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <!-- FULL NAME -->
+        <div>
+            <label class="text-sm text-gray-400">Full Name</label>
+            <input type="text" name="name" value="{{ old('name', $user->name) }}"
+                class="mt-1 w-full px-4 py-3 rounded-lg bg-[#1e1e2f] border border-gray-700 text-white">
+        </div>
+        @error('name')
+            <p class="text-red-400 text-sm">{{ $message }}</p>
+        @enderror
+
+        <!-- BIO -->
+        <div>
+            <label class="text-sm text-gray-400">Bio</label>
+            <textarea name="bio" maxlength="150"
+                class="mt-1 w-full px-4 py-3 rounded-lg bg-[#1e1e2f] border border-gray-700 text-white resize-none" rows="3">{{ old('bio', $user->bio) }}</textarea>
+
+            <p class="text-xs text-gray-500 mt-1">
+                {{ strlen($user->bio ?? '') }}/150
+            </p>
+            @error('bio')
+                <p class="text-red-400 text-sm">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <!-- EMAIL -->
+        <div>
+            <label class="text-sm text-gray-400">Email</label>
+            <input type="email" name="email" value="{{ old('email', $user->email) }}"
+                class="mt-1 w-full px-4 py-3 rounded-lg bg-[#1e1e2f] border border-gray-700 text-white">
+            @error('email')
+                <p class="text-red-400 text-sm">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <!-- PHONE -->
+        <div>
+            <label class="text-sm text-gray-400">Phone Number</label>
+            <input type="text" name="phone" value="{{ old('phone', $user->phone) }}"
+                class="mt-1 w-full px-4 py-3 rounded-lg bg-[#1e1e2f] border border-gray-700 text-white">
+            @error('phone')
+                <p class="text-red-400 text-sm">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <!-- GENDER -->
+        <div>
+            <label class="text-sm text-gray-400">Gender</label>
+            <select name="gender"
+                class="mt-1 w-full px-4 py-3 rounded-lg bg-[#1e1e2f] border border-gray-700 text-white">
+                <option value="">Select</option>
+                <option value="male" {{ $user->gender == 'male' ? 'selected' : '' }}>Male</option>
+                <option value="female" {{ $user->gender == 'female' ? 'selected' : '' }}>Female</option>
+                <option value="other" {{ $user->gender == 'other' ? 'selected' : '' }}>Prefer not to say</option>
+            </select>
+            @error('gender')
+                <p class="text-red-400 text-sm">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <!-- WEBSITE -->
+        <div>
+            <label class="text-sm text-gray-400">Website</label>
+            <input type="url" name="website" value="{{ old('website', $user->website) }}"
+                class="mt-1 w-full px-4 py-3 rounded-lg bg-[#1e1e2f] border border-gray-700 text-white"
+                placeholder="https://example.com">
+            @error('website')
+                <p class="text-red-400 text-sm">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <!-- BUTTON -->
+        <div class="pt-3">
+            <button type="submit"
+                class="px-6 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-purple-500 hover:opacity-90 transition text-white">
+                Submit
+            </button>
+        </div>
+
     </form>
 </section>
