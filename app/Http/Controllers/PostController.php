@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use App\Models\Like;
+use App\Models\Tag;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class PostController extends Controller
 {
@@ -27,33 +30,116 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(Request $request)
     {
+        Log::info('📥 Incoming request', $request->all());
+
         $request->validate([
             'caption' => 'nullable|string|max:1000',
+            'location' => 'nullable|string|max:255',
             'media' => 'required|array',
-            'media.*' => 'required|file|mimetypes:image/jpeg,image/png,image/jpg,video/mp4,video/quicktime,video/x-msvideo|max:50000', // 50MB Max for videos
+            'media.*' => 'required|file|mimetypes:image/jpeg,image/png,image/jpg,video/mp4,video/quicktime,video/x-msvideo|max:50000',
+            'tags' => 'nullable|string',
+            'is_reel' => 'nullable',
         ]);
 
+        // 🔥 IMPORTANT FIX
+        $isReel = $request->has('is_reel');
+
+        Log::info('🎬 isReel value', ['isReel' => $isReel]);
+
+        $files = $request->file('media');
+        Log::info('📁 Media count', ['count' => count($files ?? [])]);
+
+        // 🔥 REEL VALIDATION
+        if ($isReel) {
+
+            if (!$files || count($files) !== 1) {
+                Log::error('❌ Reel validation failed: multiple files');
+                return back()->withErrors(['media' => 'Only one video allowed for reels']);
+            }
+
+            $file = $files[0];
+            $mime = $file->getMimeType();
+
+            Log::info('🎥 Reel file mime', ['mime' => $mime]);
+
+            if (!str_contains($mime, 'video')) {
+                Log::error('❌ Reel validation failed: not a video');
+                return back()->withErrors(['media' => 'Reels must be a video']);
+            }
+        }
+
+        // CREATE POST
         $post = auth()->user()->posts()->create([
             'caption' => $request->caption,
             'location' => $request->location,
+            'is_reel' => $isReel,
         ]);
 
-        foreach ($request->file('media') as $index => $file) {
-            $path = $file->store('posts', 'public');
+        Log::info('✅ Post created', ['post_id' => $post->id]);
 
+        // STORE MEDIA
+        foreach ($files as $index => $file) {
+
+            $path = $file->store('posts', 'public');
             $mime = $file->getMimeType();
             $type = str_contains($mime, 'video') ? 'video' : 'image';
 
+            Log::info('📸 Media stored', [
+                'path' => $path,
+                'type' => $type,
+                'order' => $index
+            ]);
+
             $post->media()->create([
                 'media_url' => $path,
-                'media_type' => $type, // Ab ye dynamic hai (image ya video)
+                'media_type' => $type,
                 'order' => $index
             ]);
         }
 
-        return back()->with('success', 'Post upload ho gaya!');
+        // TAGS
+        if ($request->filled('tags')) {
+
+            $tagNames = explode(',', $request->tags);
+            $tagIds = [];
+
+            foreach ($tagNames as $tag) {
+                $tag = trim(strtolower($tag));
+
+                if (!$tag) continue;
+
+                $tagModel = Tag::firstOrCreate([
+                    'slug' => Str::slug($tag)
+                ], [
+                    'name' => $tag
+                ]);
+
+                Log::info('🏷️ Tag processed', [
+                    'name' => $tag,
+                    'id' => $tagModel->id
+                ]);
+
+                $tagIds[] = $tagModel->id;
+            }
+
+            $post->tags()->sync(
+                collect($tagIds)->mapWithKeys(function ($id) {
+                    return [
+                        $id => [
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]
+                    ];
+                })->toArray()
+            );
+        }
+
+        Log::info('🎉 Post creation completed');
+
+        return back()->with('success', 'Post created successfully');
     }
 
     /**
