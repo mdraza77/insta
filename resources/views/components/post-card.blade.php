@@ -224,7 +224,40 @@
                     </p>
                 </div>
             </div>
-            <i class="fa-regular fa-bookmark text-2xl cursor-pointer hover:text-yellow-500 transition text-white"></i>
+            {{-- <i class="fa-regular fa-bookmark text-2xl cursor-pointer hover:text-yellow-500 transition text-white"></i> --}}
+
+            <div x-data="{
+                saved: {{ $post->isSavedBy(auth()->user()) ? 'true' : 'false' }},
+                loading: false,
+                async toggleSave() {
+                    if (this.loading) return;
+                    this.loading = true;
+                    try {
+                        const res = await fetch('{{ route('posts.save', $post) }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        const data = await res.json();
+                        this.saved = (data.status === 'saved');
+                    } catch (e) {
+                        console.error('Save failed', e);
+                    } finally {
+                        this.loading = false;
+                    }
+                }
+            }">
+                <button @click="toggleSave" class="focus:outline-none transition transform active:scale-125">
+                    <template x-if="saved">
+                        <i class="fa-solid fa-bookmark text-2xl text-white"></i>
+                    </template>
+                    <template x-if="!saved">
+                        <i class="fa-regular fa-bookmark text-2xl text-white hover:text-gray-400"></i>
+                    </template>
+                </button>
+            </div>
         </div>
 
         <div class="space-y-1">

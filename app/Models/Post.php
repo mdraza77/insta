@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Post extends Model
 {
@@ -50,5 +51,11 @@ class Post extends Model
     public function tags()
     {
         return $this->belongsToMany(Tag::class);
+    }
+
+    public function isSavedBy($user)
+    {
+        if (!$user) return false;
+        return DB::table('saves')->where('user_id', $user->id)->where('post_id', $this->id)->exists();
     }
 }

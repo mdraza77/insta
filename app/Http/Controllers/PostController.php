@@ -193,4 +193,23 @@ class PostController extends Controller
             'likes_count' => $post->likes_count
         ]);
     }
+
+    public function toggleSave(Post $post)
+    {
+        $user = auth()->user();
+
+        // Check if already saved
+        if ($user->savedPosts()->where('post_id', $post->id)->exists()) {
+            $user->savedPosts()->detach($post->id);
+            $status = 'unsaved';
+        } else {
+            $user->savedPosts()->attach($post->id);
+            $status = 'saved';
+        }
+
+        return response()->json([
+            'status' => $status,
+            'message' => $status == 'saved' ? 'Post saved to collection' : 'Removed from saves'
+        ]);
+    }
 }

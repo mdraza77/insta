@@ -55,4 +55,9 @@ class User extends Authenticatable
     {
         return $this->following()->where('following_id', $user->id)->exists();
     }
+
+    public function savedPosts()
+    {
+        return $this->belongsToMany(Post::class, 'saves', 'user_id', 'post_id')->withTimestamps();
+    }
 }
