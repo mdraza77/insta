@@ -129,7 +129,7 @@
                             {{-- Video Player --}}
                             <video src="{{ asset('storage/' . $item->media_url) }}"
                                 class="absolute block w-full h-full object-cover top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                                autoplay muted playsinline controls>
+                                playsinline controls>
                             </video>
                         @else
                             {{-- Image Player --}}

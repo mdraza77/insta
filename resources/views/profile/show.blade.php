@@ -1,5 +1,6 @@
 <x-app-layout>
-    <div class="max-w-4xl mx-auto py-8 px-4">
+    <div class="max-w-4xl mx-auto py-8 px-4" x-data="{ tab: 'posts' }">
+
         {{-- Profile Header Section --}}
         <div class="flex flex-col md:flex-row items-center md:items-start gap-8 mb-12 border-b border-gray-800 pb-10">
             {{-- Avatar --}}
@@ -66,35 +67,56 @@
             </div>
         </div>
 
-        {{-- Posts Grid Section --}}
-        <div class="grid grid-cols-3 gap-1 md:gap-4">
-            @forelse($posts as $post)
-                <a href="#"
-                    class="relative aspect-square group overflow-hidden bg-gray-900 rounded-sm hover:opacity-90">
-                    @if ($post->media->first()->media_type === 'video')
-                        <video src="{{ asset('storage/' . $post->media->first()->media_url) }}"
-                            class="w-full h-full object-cover"></video>
-                        <div class="absolute top-2 right-2 text-white"><i class="fa-solid fa-video text-xs"></i></div>
-                    @else
-                        <img src="{{ asset('storage/' . $post->media->first()->media_url) }}"
-                            class="w-full h-full object-cover">
-                    @endif
+        <div class="flex justify-center border-gray-800 gap-12 mb-6">
+            <button @click="tab = 'posts'"
+                :class="tab === 'posts' ? 'border-t border-white text-white' : 'text-gray-500'"
+                class="flex items-center gap-2 pt-4 px-2 uppercase tracking-widest text-[12px] font-bold transition-all">
+                <i class="fa-solid fa-table-cells"></i> Posts
+            </button>
 
-                    {{-- Hover Overlay --}}
-                    <div
-                        class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-200">
-                        <div class="flex gap-6 text-white font-bold">
-                            <span><i class="fa-solid fa-heart mr-1"></i> {{ $post->likes_count }}</span>
-                            <span><i class="fa-solid fa-comment mr-1"></i> {{ $post->comments_count }}</span>
-                        </div>
-                    </div>
-                </a>
+            <button @click="tab = 'reels'"
+                :class="tab === 'reels' ? 'border-t border-white text-white' : 'text-gray-500'"
+                class="flex items-center gap-2 pt-4 px-2 uppercase tracking-widest text-[12px] font-bold transition-all">
+                <i class="fa-solid fa-clapperboard"></i> Reels
+            </button>
+
+            @if (auth()->id() === $user->id)
+                <button @click="tab = 'saved'"
+                    :class="tab === 'saved' ? 'border-t border-white text-white' : 'text-gray-500'"
+                    class="flex items-center gap-2 pt-4 px-2 uppercase tracking-widest text-[12px] font-bold transition-all">
+                    <i class="fa-regular fa-bookmark"></i> Saved
+                </button>
+            @endif
+        </div>
+
+        {{-- Posts Tab --}}
+        <div x-show="tab === 'posts'" x-cloak class="grid grid-cols-3 gap-1 md:gap-4">
+            @forelse($posts as $post)
+                @include('profile.partials.grid-item', ['post' => $post])
             @empty
-                <div class="col-span-3 text-center py-20 text-gray-500">
-                    <i class="fa-solid fa-camera text-4xl mb-4 block"></i>
-                    <p class="uppercase tracking-widest text-sm font-bold">No Posts Yet</p>
-                </div>
+                <div class="col-span-3 text-center py-20 text-gray-600 italic">No posts yet.</div>
             @endforelse
         </div>
+
+        {{-- Reels Tab --}}
+        <div x-show="tab === 'reels'" x-cloak class="grid grid-cols-3 gap-1 md:gap-4">
+            @forelse($reels as $reel)
+                @include('profile.partials.grid-item', ['post' => $reel, 'isReel' => true])
+            @empty
+                <div class="col-span-3 text-center py-20 text-gray-600 italic">No reels yet.</div>
+            @endforelse
+        </div>
+
+        {{-- Saved Tab --}}
+        @if (auth()->id() === $user->id)
+            <div x-show="tab === 'saved'" x-cloak class="grid grid-cols-3 gap-1 md:gap-4">
+                @forelse($savedPosts as $saved)
+                    @include('profile.partials.grid-item', ['post' => $saved])
+                @empty
+                    <div class="col-span-3 text-center py-20 text-gray-600 italic">No saved posts.</div>
+                @endforelse
+            </div>
+        @endif
+
     </div>
 </x-app-layout>

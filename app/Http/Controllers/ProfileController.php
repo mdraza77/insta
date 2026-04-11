@@ -87,17 +87,44 @@ class ProfileController extends Controller
         return Redirect::to('/');
     }
 
+    // public function show($username)
+    // {
+    //     // User ko uske username se dhoondo
+    //     $user = User::where('username', $username)
+    //         ->withCount(['posts', 'followers', 'following'])
+    //         ->firstOrFail();
+
+    //     // Us user ki saari posts fetch karo
+    //     $posts = $user->posts()->with('media')->latest()->get();
+
+    //     return view('profile.show', compact('user', 'posts'));
+    // }
+
     public function show($username)
     {
-        // User ko uske username se dhoondo
         $user = User::where('username', $username)
             ->withCount(['posts', 'followers', 'following'])
             ->firstOrFail();
 
-        // Us user ki saari posts fetch karo
-        $posts = $user->posts()->with('media')->latest()->get();
+        // Saari posts load karo media ke saath
+        $allPosts = $user->posts()->with('media')->latest()->get();
 
-        return view('profile.show', compact('user', 'posts'));
+        // Posts aur Reels ko filter karo (Assumption: media_type column exists)
+        $posts = $allPosts->filter(function ($post) {
+            return $post->media->first()->media_type !== 'video';
+        });
+
+        $reels = $allPosts->filter(function ($post) {
+            return $post->media->first()->media_type === 'video';
+        });
+
+        // Saved posts sirf owner ke liye
+        $savedPosts = collect();
+        if (auth()->id() === $user->id) {
+            $savedPosts = $user->savedPosts()->with('media')->latest()->get();
+        }
+
+        return view('profile.show', compact('user', 'posts', 'reels', 'savedPosts'));
     }
 
     public function updatePhoto(Request $request)
