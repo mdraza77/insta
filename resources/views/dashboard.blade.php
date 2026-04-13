@@ -50,7 +50,7 @@
     </div>
 </x-modal> --}}
 
-<x-modal name="create-post" focusable>
+{{-- <x-modal name="create-post" focusable>
     <div class="bg-black border border-gray-800 p-6 rounded-xl">
 
         <h2 class="text-lg font-bold text-white mb-4 border-b border-gray-800 pb-2">
@@ -135,7 +135,7 @@
 
         </form>
     </div>
-</x-modal>
+</x-modal> --}}
 
 
 <script>
