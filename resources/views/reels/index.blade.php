@@ -251,8 +251,8 @@
                         <div class="flex space-x-3">
                             <a href="#" class="flex-shrink-0">
                                 <img :src="comment.user.profile_picture ?
-                                    '/storage/' + comment.user.profile_picture :
-                                    'https://ui-avatars.com/api/?name=' + encodeURIComponent(comment.user.name)"
+                                            '/storage/' + comment.user.profile_picture :
+                                            'https://ui-avatars.com/api/?name=' + encodeURIComponent(comment.user.name)"
                                  class="w-8 h-8 rounded-full object-cover border border-gray-700">
                         </a>
                         <div class="flex-1 min-w-0">
@@ -482,7 +482,7 @@
                 .then(data => {
                     console.log('Follow toggled:', data);
                     // UI update ke liye page reload ya button state change karo
-                    location.reload(); // Simple solution: reload to show updated state
+                    // location.reload(); // Simple solution: reload to show updated state
                 })
                 .catch(err => {
                     console.error('Follow error:', err);
