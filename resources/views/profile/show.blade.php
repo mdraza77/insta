@@ -7,7 +7,11 @@
             <div class="relative w-32 h-32 md:w-40 md:h-40">
 
                 <!-- IMAGE -->
-                <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}"
+                @php
+                    $displayUser = auth()->id() === $user->id ? auth()->user() : $user;
+                @endphp
+
+                <img src="{{ $displayUser->profile_picture ? asset('storage/' . $displayUser->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($displayUser->name) }}"
                     class="w-full h-full object-cover rounded-full border-2 border-purple-600 p-1">
 
                 @if (auth()->id() === $user->id)
