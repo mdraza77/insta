@@ -6,6 +6,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FollowController;
+use App\Http\Controllers\ReelController;
 use App\Models\Post;
 use App\Models\User;
 
@@ -20,6 +21,7 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/reels', [ReelController::class, 'index'])->middleware(['auth'])->name('reels.index');
 
 Route::middleware('auth')->group(function () {
     // Ye fixed routes hain, inhein upar rehne do
@@ -45,5 +47,4 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__ . '/auth.php';
 
-// YE SABSE NICHE HONA CHAHIYE - Kyunki ye "Catch-all" route hai
 Route::get('/{username}', [ProfileController::class, 'show'])->middleware('auth')->name('profile.show');

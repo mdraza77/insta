@@ -26,7 +26,7 @@
                 </li>
 
                 <li>
-                    <a href="#" class="flex items-center p-3 text-white rounded-lg hover:bg-gray-900 group">
+                    <a href="{{ route('reels.index') }}" class="flex items-center p-3 text-white rounded-lg hover:bg-gray-900 group">
                         <i class="fa-regular fa-circle-play text-xl w-7 text-gray-400 group-hover:text-purple-500"></i>
                         <span class="ms-3">Reels</span>
                     </a>
@@ -102,7 +102,7 @@
     </a>
     <a href="#" class="p-2"><i class="fa-solid fa-magnifying-glass text-2xl text-gray-400"></i></a>
     <a href="#" class="p-2 text-3xl"><i class="fa-regular fa-square-plus text-gray-400"></i></a>
-    <a href="#" class="p-2 text-2xl"><i class="fa-solid fa-clapperboard text-gray-400"></i></a>
+    <a href="{{ route('reels.index') }}" class="p-2 text-2xl"><i class="fa-solid fa-clapperboard {{ request()->routeIs('reels.index') ? 'text-purple-500' : 'text-gray-400' }}"></i></a>
     <a href="{{ route('profile.show', auth()->user()->username) }}">
         <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}"
             class="w-8 h-8 rounded-full border {{ request()->routeIs('profile.edit') ? 'border-purple-500' : 'border-gray-700' }}">

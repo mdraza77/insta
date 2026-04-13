@@ -67,6 +67,7 @@
                 <div class="space-y-1">
                     <h3 class="font-bold text-white">{{ $user->name }}</h3>
                     <p class="text-sm text-gray-300">{{ $user->bio ?? 'No bio yet. ✨' }}</p>
+                    <p class="text-sm text-gray-300">{{ $user->email ?? 'email yet. ✨' }}</p>
                 </div>
             </div>
         </div>
