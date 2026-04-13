@@ -29,11 +29,23 @@ class ProfileController extends Controller
      */
     public function update(Request $request): RedirectResponse
     {
-        // dd($request->all());
+        $user = $request->user();
+
+        // USERNAME 14-DAY RULE
+        if (
+            $request->username !== $user->username &&
+            $user->username_updated_at &&
+            $user->username_updated_at->diffInDays(now()) < 14
+        ) {
+            return back()->withErrors([
+                'username' => 'You can change your username only once in 14 days'
+            ]);
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users,username,' . $request->user()->id,
-            'email' => 'required|string|email|max:255|unique:users,email,' . $request->user()->id,
+            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'bio' => 'nullable|string|max:150',
             'website' => 'nullable|url|max:255',
             'gender' => 'nullable|string|in:male,female,other',
@@ -43,23 +55,32 @@ class ProfileController extends Controller
 
         Log::info('Profile update request validated successfully.');
 
-        $user = $request->user();
-
-        // 🔥 IMAGE UPLOAD
+        // IMAGE UPLOAD
         if ($request->hasFile('photo')) {
 
-            // old delete
             if ($user->profile_picture && Storage::disk('public')->exists($user->profile_picture)) {
                 Storage::disk('public')->delete($user->profile_picture);
             }
 
             $path = $request->file('photo')->store('profiles', 'public');
-
             $user->profile_picture = $path;
         }
 
-        // 🔥 UPDATE DATA
-        $user->update(['name' => $request->name, 'username' => $request->username, 'email' => $request->email, 'bio' => $request->bio, 'website' => $request->website, 'gender' => $request->gender, 'phone' => $request->phone,]);
+        // USERNAME TIMESTAMP UPDATE
+        if ($request->username !== $user->username) {
+            $user->username_updated_at = now();
+        }
+
+        //UPDATE DATA
+        $user->update([
+            'name' => $request->name,
+            'username' => $request->username,
+            'email' => $request->email,
+            'bio' => $request->bio,
+            'website' => $request->website,
+            'gender' => $request->gender,
+            'phone' => $request->phone,
+        ]);
 
         Log::info('User profile updated successfully.', ['user_id' => $user->id]);
 

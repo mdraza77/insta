@@ -18,13 +18,25 @@
         </div>
 
         <!-- USERNAME -->
+        @php
+            $canEdit = !$user->username_updated_at || $user->username_updated_at->diffInDays(now()) >= 14;
+        @endphp
+
         <div>
             <label class="text-sm text-gray-400">Username</label>
+
             <input type="text" name="username" value="{{ old('username', $user->username) }}"
-                class="mt-1 w-full px-4 py-3 rounded-lg bg-[#1e1e2f] border border-gray-700 text-white">
+                {{ $canEdit ? '' : 'readonly' }}
+                class="mt-1 w-full px-4 py-3 rounded-lg bg-[#1e1e2f] border border-gray-700 text-white 
+        {{ !$canEdit ? 'opacity-50 cursor-not-allowed' : '' }}">
 
             <p class="text-xs text-gray-500 mt-1">
-                You can change your username only once within 14 days.
+                @if ($canEdit)
+                    You can update your username.
+                @else
+                    You can change your username after
+                    {{ $user->username_updated_at->addDays(14)->format('M d, Y') }}
+                @endif
             </p>
 
             @error('username')
