@@ -60,20 +60,6 @@
         <form method="POST" action="{{ route('posts.store') }}" enctype="multipart/form-data" class="space-y-5">
             @csrf
 
-            <!-- MEDIA -->
-            <div>
-                <label class="block text-sm font-medium text-gray-400 mb-2">
-                    Select Media
-                </label>
-
-                <input id="mediaInput" type="file" name="media[]" multiple required
-                    class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer">
-
-                <p id="mediaHint" class="text-xs text-gray-500 mt-1">
-                    You can upload multiple images or videos to create a carousel post.
-                </p>
-            </div>
-
             <!-- TOGGLE -->
             <div class="flex items-center justify-between">
                 <div>
@@ -91,6 +77,20 @@
             peer-checked:translate-x-5">
                     </div>
                 </label>
+            </div>
+
+            <!-- MEDIA -->
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">
+                    Select Media
+                </label>
+
+                <input id="mediaInput" type="file" name="media[]" multiple required
+                    class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer">
+
+                <p id="mediaHint" class="text-xs text-gray-500 mt-1">
+                    You can upload multiple images or videos to create a carousel post.
+                </p>
             </div>
 
             <!-- CAPTION -->
