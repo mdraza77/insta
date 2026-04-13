@@ -1,11 +1,14 @@
-<a href="#" class="relative aspect-square group overflow-hidden bg-gray-900 rounded-sm">
+<a href="{{ isset($isReel) && $isReel ? route('reels.index', ['reel' => $post->id]) : route('profile.show', $post->user->username) }}" 
+   class="relative aspect-square group overflow-hidden bg-gray-900 rounded-sm">
     @php $firstMedia = $post->media->first(); @endphp
 
     @if ($firstMedia->media_type === 'video')
         <video src="{{ asset('storage/' . $firstMedia->media_url) }}" class="w-full h-full object-cover"></video>
-        <div class="absolute top-2 right-2 text-white drop-shadow-lg">
-            <i class="fa-solid fa-clapperboard text-sm"></i>
-        </div>
+        @if(isset($isReel) && $isReel)
+            <div class="absolute top-2 right-2 text-white drop-shadow-lg">
+                <i class="fa-solid fa-clapperboard text-sm"></i>
+            </div>
+        @endif
     @else
         <img src="{{ asset('storage/' . $firstMedia->media_url) }}" class="w-full h-full object-cover">
     @endif

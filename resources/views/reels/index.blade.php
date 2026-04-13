@@ -12,7 +12,8 @@
                 @foreach ($reels as $index => $reel)
                     {{-- Single Reel Card --}}
                     <div class="snap-start w-full h-full flex-shrink-0 relative flex items-center justify-center"
-                        data-reel-index="{{ $index }}">
+                        data-reel-index="{{ $index }}"
+                        data-reel-id="{{ $reel->id }}">
 
                         {{-- Reel Video Card with Rounded Corners --}}
                         <div class="relative w-full h-full bg-gray-900 rounded-xl overflow-hidden">
@@ -344,6 +345,18 @@
                         document.querySelectorAll('[data-reel-index]').forEach(el => {
                             this.observer.observe(el);
                         });
+
+                        // 🔥 Auto-scroll to active reel if coming from feed click
+                        @if(isset($activeReelId) && $activeReelId)
+                            this.$nextTick(() => {
+                                const targetElement = document.querySelector('[data-reel-id="{{ $activeReelId }}"]');
+                                if (targetElement) {
+                                    setTimeout(() => {
+                                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                    }, 300);
+                                }
+                            });
+                        @endif
                     });
                 },
 
