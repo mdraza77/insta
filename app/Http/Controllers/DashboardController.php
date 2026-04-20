@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Post;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
@@ -13,6 +14,9 @@ class DashboardController extends Controller
         $posts = Post::with(['user', 'media', 'comments.user'])
             ->latest()
             ->get();
-        return view('dashboard', compact('posts'));
+
+        $users_with_stories = User::has('stories')->with(['stories.media'])->get();
+
+        return view('dashboard', compact('posts', 'users_with_stories'));
     }
 }

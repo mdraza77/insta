@@ -7,6 +7,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\ReelController;
+use App\Http\Controllers\StoryController;
 use App\Models\Post;
 use App\Models\User;
 
@@ -43,6 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/user/{user}/follow', [FollowController::class, 'toggleFollow'])->name('user.follow');
 
     Route::post('/posts/{post}/save', [PostController::class, 'toggleSave'])->name('posts.save');
+    Route::post('/stories', [StoryController::class, 'store'])->name('stories.store');
 });
 
 require __DIR__ . '/auth.php';
