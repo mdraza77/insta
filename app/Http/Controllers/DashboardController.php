@@ -10,12 +10,19 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Saare posts load karo with user and media
         $posts = Post::with(['user', 'media', 'comments.user'])
             ->latest()
             ->get();
 
-        $users_with_stories = User::has('stories')->with(['stories.media'])->get();
+        $users_with_stories = User::has('stories')->with(['stories' => function ($q) {
+            $q->where('expires_at', '>', now());
+        }, 'stories.media', 'stories.user'])->get();
+
+        $users_with_stories->each(function ($user) {
+            $user->stories->each(function ($story) {
+                $story->time_ago = $story->created_at->diffForHumans(null, true); // Output: 2h, 5m, etc.
+            });
+        });
 
         return view('dashboard', compact('posts', 'users_with_stories'));
     }

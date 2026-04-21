@@ -158,6 +158,27 @@
                     </template>
                 </div>
 
+                <div class="absolute top-8 left-0 right-0 px-4 py-2 flex items-center justify-between z-[150]">
+                    <div class="flex items-center space-x-3">
+                        <a :href="activeUserStories[currentIndex]?.user?.username">
+                            <img
+                            :src="activeUserStories[currentIndex]?.user?.profile_picture ? '/storage/' + activeUserStories[
+                                    currentIndex].user.profile_picture :
+                                'https://ui-avatars.com/api/?name=' + activeUserStories[currentIndex]?.user?.name" 
+                 class="w-10 h-10 rounded-full border border-gray-700 object-cover">
+                        </a>
+            
+            <div class="flex items-baseline space-x-2">
+                <a :href="activeUserStories[currentIndex]?.user?.username" class="text-white font-semibold text-sm drop-shadow-md" x-text="activeUserStories[currentIndex]?.user?.name"></a>
+                <span class="text-gray-300 text-xs opacity-80" x-text="activeUserStories[currentIndex]?.time_ago"></span>
+            </div>
+            </div>
+
+        <button class="text-white p-1">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+        </button>
+    </div>
+
                 <div @click.stop="prev()" class="absolute left-0 top-0 w-1/4 h-full z-[130] cursor-pointer"></div>
                 <div @click.stop="next()" class="absolute right-0 top-0 w-1/4 h-full z-[130] cursor-pointer"></div>
 
