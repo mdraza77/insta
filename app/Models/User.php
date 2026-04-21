@@ -66,4 +66,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Story::class);
     }
+
+    public function conversations()
+    {
+        return $this->belongsToMany(Conversation::class)->withPivot('read_at', 'is_muted')->withTimestamps();
+    }
 }

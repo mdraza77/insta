@@ -44,6 +44,21 @@
                     @else
                         {{-- Follow/Unfollow Component humne pehle banaya tha wahi yahan use hoga --}}
                         @include('components.follow-button', ['user' => $user])
+
+                        {{-- Message Button --}}
+                        <a href="{{ route('messages.chat', $user->username) }}"
+                            class="px-6 py-1.5 bg-spheria-gray border border-gray-700 rounded-lg text-sm font-bold hover:bg-gray-800 transition text-white flex items-center justify-center">
+                            Message
+                        </a>
+
+                        {{-- Optional: Profile Suggestion Icon --}}
+                        <button
+                            class="p-2 bg-spheria-gray border border-gray-700 rounded-lg hover:bg-gray-800 transition text-white">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M18.5 10.5a.5.5 0 01.5.5V12a.5.5 0 01-.5.5h-1.5a.5.5 0 01-.5-.5v-1.5a.5.5 0 01.5-.5h1.5zM6 4a4 4 0 110 8 4 4 0 010-8zm0 2a2 2 0 100 4 2 2 0 000-4zm10 4a4 4 0 110 8 4 4 0 010-8zm0 2a2 2 0 100 4 2 2 0 000-4zM6 14c-2.21 0-4 1.79-4 4v2h8v-2c0-2.21-1.79-4-4-4zm10 4c0-2.21-1.79-4-4-4h-1.1c.36.53.64 1.13.84 1.79.43.08.81.21 1.16.4l.1.06c.65.41 1 1.03 1 1.75v2h8v-2c0-2.21-1.79-4-4-4z" />
+                            </svg>
+                        </button>
                     @endif
                 </div>
 

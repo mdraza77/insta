@@ -6,6 +6,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FollowController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ReelController;
 use App\Http\Controllers\StoryController;
 use App\Models\Post;
@@ -45,6 +46,15 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/posts/{post}/save', [PostController::class, 'toggleSave'])->name('posts.save');
     Route::post('/stories', [StoryController::class, 'store'])->name('stories.store');
+
+    // Pehle specific chat wala route
+    Route::get('/messages/{username}', [MessageController::class, 'chat'])->name('messages.chat');
+
+    // Phir general index wala route
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+
+    // Send Message - Message bhejni ki API
+    Route::post('/messages/{conversation}/send', [MessageController::class, 'send'])->name('messages.send');
 });
 
 require __DIR__ . '/auth.php';

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 
@@ -31,6 +32,17 @@ class AppServiceProvider extends ServiceProvider
                 ->get();
 
             $view->with('suggestions', $suggestions);
+        });
+
+        View::composer('messages.sidebar', function ($view) {
+            if (Auth::check()) {
+                $conversations = Auth::user()->conversations()
+                    ->with(['lastMessage', 'users'])
+                    ->orderByDesc('updated_at')
+                    ->get();
+
+                $view->with('conversations', $conversations);
+            }
         });
     }
 }
