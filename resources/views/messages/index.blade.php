@@ -11,9 +11,9 @@
                 </div>
                 <h2 class="text-white text-2xl font-light">Your Messages</h2>
                 <p class="text-gray-500 mt-2">Send private photos and messages to a friend.</p>
-                <button class="mt-6 bg-blue-500 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-600 transition">
+                {{-- <button class="mt-6 bg-blue-500 text-white px-5 py-2 rounded-lg font-bold hover:bg-blue-600 transition">
                     Send Message
-                </button>
+                </button> --}}
             </div>
         </div>
     </div>

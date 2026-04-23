@@ -29,7 +29,7 @@
         @include('layouts.navigation')
 
         <main class="flex-1 md:ml-64 pb-20 md:pb-0">
-            <div class="max-w-[600px] mx-auto py-8 px-4 md:px-0">
+            <div class="max-w-[700px] mx-auto py-8 px-4 md:px-0">
                 {{ $slot }}
             </div>
         </main>

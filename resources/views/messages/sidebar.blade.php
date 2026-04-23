@@ -1,11 +1,9 @@
-<div class="flex-shrink-0 w-80 border-r border-gray-800 flex flex-col h-full bg-black">
+<div class="flex-shrink-0 w-70 border-r border-gray-800 flex flex-col h-full bg-black">
     <div class="p-5 border-b border-gray-800 flex justify-between items-center bg-black">
-        <h1 class="text-white font-bold text-xl">{{ auth()->user()->username }}</h1>
-        <button class="text-white hover:text-gray-400">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
+        <h1 class="text-white font-bold text-xl"><a
+                href="{{ route('profile.show', auth()->user()->username) }}">{{ auth()->user()->username }}</a></h1>
+        <button class="text-white hover:text-gray-400" title="Work In Progress">
+            <i class="fa-solid fa-pen-to-square text-xl"></i>
         </button>
     </div>
 
@@ -24,11 +22,25 @@
                         class="w-12 h-12 rounded-full object-cover">
                 </div>
 
-                <div class="ml-3 overflow-hidden flex-1">
-                    <p class="text-white text-sm font-semibold truncate">{{ $chatPartner->name }}</p>
-                    <p class="text-gray-500 text-xs truncate">
-                        {{ $conv->lastMessage?->body ?? 'No messages yet' }}
+
+                <div class="ml-3 flex-1 min-w-0">
+
+                    <!-- Top row: Name + Time -->
+                    <div class="flex justify-between items-center">
+                        <p class="text-white text-sm font-semibold truncate">
+                            {{ $chatPartner->name }}
+                        </p>
+
+                        <span class="text-[10px] text-gray-500 whitespace-nowrap ml-2">
+                            {{ $conv->lastMessage?->created_at?->diffForHumans() }}
+                        </span>
+                    </div>
+
+                    <!-- Message preview -->
+                    <p class="text-gray-400 text-xs truncate">
+                        {{ \Illuminate\Support\Str::words($conv->lastMessage?->body ?? 'No messages yet', 3, '...') }}
                     </p>
+
                 </div>
             </a>
         @endforeach
