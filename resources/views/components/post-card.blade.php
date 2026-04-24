@@ -332,7 +332,7 @@
                     <div class="text-sm">
                         <div class="flex items-start space-x-2">
                             {{-- Comment User Avatar --}}
-                            <a href="#" class="flex-shrink-0">
+                            <a :href="'/' + comment.user.username" class="flex-shrink-0">
                                 <img :src="comment.user.profile_picture ?
                                     '/storage/' + comment.user.profile_picture :
                                     'https://ui-avatars.com/api/?name=' + encodeURIComponent(comment.user.name)"
@@ -344,8 +344,7 @@
                             <div class="flex-1">
                                 <div class="bg-gray-900 rounded-lg px-3 py-2">
                                     <p class="text-white">
-                                        <a :href="' /
-                                    ' + comment.user.username"
+                                        <a :href="'/' + comment.user.username"
                                     class="font-bold text-sm text-white hover:underline"
                                     x-text="comment.user.username || comment.user.name">
                             </a>
