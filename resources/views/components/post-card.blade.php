@@ -344,27 +344,30 @@
                             <div class="flex-1">
                                 <div class="bg-gray-900 rounded-lg px-3 py-2">
                                     <p class="text-white">
-                                        <a href="#"
-                                           class="font-bold text-sm text-white hover:underline"
-                                           x-text="comment.user.username || comment.user.name">
-                                        </a>
-                                        <span class="text-sm" x-text="comment.body"></span>
-                                    </p>
-                                </div>
-                                
-                                {{-- Comment Actions --}}
-                                <div class="flex items-center space-x-3 mt-1 px-2">
-                                    <span class="text-xs text-gray-500" x-text="comment.created_at_formatted"></span>
-                                    
-                                    <button @click="replyTo = comment.id; replyText = ' '"
-                                    class="text-xs text-gray-500 hover:text-gray-300 font-semibold">
-                                <i class="fa-solid fa-reply text-sm"></i>
-                                </button>
+                                        <a :href="' /
+                                    ' + comment.user.username"
+                                    class="font-bold text-sm text-white hover:underline"
+                                    x-text="comment.user.username || comment.user.name">
+                            </a>
+                            <span class="text-sm" x-text="comment.body"></span>
+                            </p>
+                        </div>
 
+                        {{-- Comment Actions --}}
+                        <div class="flex items-center space-x-3 mt-1 px-2">
+                            <span class="text-xs text-gray-500" x-text="comment.created_at_formatted"></span>
+
+                            <button @click="replyTo = comment.id; replyText = ' '"
+                                class="text-xs text-gray-500 hover:text-gray-300 font-semibold">
+                                <i class="fa-solid fa-reply text-sm"></i>
+                            </button>
+
+                            @if ($post->user->user_id === auth()->id())
                                 <button @click="deleteComment(comment.id)"
                                     class="text-xs text-red-500 hover:text-red-400">
                                     <i class="fa-solid fa-trash text-sm"></i>
                                 </button>
+                            @endif
                         </div>
 
                         {{-- Reply Input --}}
@@ -389,7 +392,8 @@
                                 <template x-for="reply in comment.replies" :key="reply.id">
                                     <div class="text-sm">
                                         <p class="text-white">
-                                            <a href="#" class="font-bold text-sm text-white hover:underline"
+                                            <a :href="'/' + reply.user.username"
+                                                class="font-bold text-sm text-white hover:underline"
                                                 x-text="reply.user.username || reply.user.name">
                                             </a>
                                             <span class="text-sm" x-text="reply.body"></span>
@@ -397,10 +401,12 @@
                                         <div class="flex items-center space-x-3 mt-1">
                                             <span class="text-xs text-gray-500"
                                                 x-text="reply.created_at_formatted"></span>
-                                            <button @click="deleteComment(reply.id)"
-                                                class="text-xs text-red-500 hover:text-red-400">
-                                                <i class="fa-solid fa-trash text-sm"></i>
-                                            </button>
+                                            @if ($post->user->user_id === auth()->id())
+                                                <button @click="deleteComment(reply.id)"
+                                                    class="text-xs text-red-500 hover:text-red-400">
+                                                    <i class="fa-solid fa-trash text-sm"></i>
+                                                </button>
+                                            @endif
                                         </div>
                                     </div>
                                 </template>
