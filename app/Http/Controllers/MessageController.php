@@ -41,7 +41,11 @@ class MessageController extends Controller
             $conversation->users()->attach([$sender->id, $receiver->id]);
         }
 
-        $messages = $conversation->messages()->with('sender')->oldest()->get();
+        // $messages = $conversation->messages()->with('sender')->oldest()->get();
+        $messages = $conversation->messages()
+            ->with(['sender', 'post.media', 'post.user'])
+            ->oldest()
+            ->get();
 
         // YAHAN CHECK KAREIN: Kya aap chat view hi return kar rahe hain?
         return view('messages.chat', compact('conversation', 'receiver', 'messages'));
@@ -63,5 +67,45 @@ class MessageController extends Controller
         $conversation->update(['last_message_id' => $message->id]);
 
         return response()->json(['success' => true, 'message' => $message]);
+    }
+
+    public function share(Request $request)
+    {
+        $request->validate([
+            'receiver_id' => 'required|exists:users,id',
+            // 'message' => 'required',
+            'message' => 'nullable',
+            'post_id' => 'nullable|exists:posts,id'
+        ]);
+
+        $sender = auth()->user();
+        $receiverId = $request->receiver_id;
+
+        // 1. Pehle dekho kya in dono ke beech conversation pehle se hai?
+        $conversation = Conversation::whereHas('users', function ($q) use ($receiverId) {
+            $q->where('user_id', $receiverId);
+        })->whereHas('users', function ($q) use ($sender) {
+            $q->where('user_id', $sender->id);
+        })->first();
+
+        // 2. Agar nahi hai toh nayi banao
+        if (!$conversation) {
+            $conversation = Conversation::create(['type' => 'private']);
+            $conversation->users()->attach([$sender->id, $receiverId]);
+        }
+
+        // 3. Message create karo (body mein post link aur post_id database mein save hoga)
+        $message = Message::create([
+            'conversation_id' => $conversation->id,
+            'sender_id' => $sender->id,
+            'body' => $request->message,
+            'post_id' => $request->post_id,
+            'type' => 'text'
+        ]);
+
+        // 4. Conversation update karo last message ke liye
+        $conversation->update(['updated_at' => now()]);
+
+        return response()->json(['status' => 'success', 'message' => 'Post shared successfully!']);
     }
 }

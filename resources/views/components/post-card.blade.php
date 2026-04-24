@@ -202,21 +202,56 @@
                             });
                     }
                 }">
-                    <div class="flex items-center space-x-5 mb-4">
-                        {{-- Like Heart Icon --}}
+                    <div class="flex items-center space-x-5 mb-4" x-data="{ showShareModal: false }">
+                        {{-- Like Button --}}
                         <button @click="toggleLike" class="focus:outline-none transition transform active:scale-125">
-                            <template x-if="liked">
-                                <i class="fa-solid fa-heart text-2xl text-red-500"></i>
-                            </template>
-                            <template x-if="!liked">
-                                <i class="fa-regular fa-heart text-2xl text-white hover:text-red-500"></i>
-                            </template>
+                            <template x-if="liked"><i class="fa-solid fa-heart text-2xl text-red-500"></i></template>
+                            <template x-if="!liked"><i
+                                    class="fa-regular fa-heart text-2xl text-white hover:text-red-500"></i></template>
                         </button>
 
+                        {{-- Comment Icon --}}
                         <i class="fa-regular fa-comment text-2xl cursor-pointer hover:text-purple-500 transition text-white"
                             @click="toggleComments"></i>
-                        <i
-                            class="fa-regular fa-paper-plane text-2xl cursor-pointer hover:text-blue-500 transition text-white"></i>
+
+                        {{-- Share Icon --}}
+                        <i class="fa-regular fa-paper-plane text-2xl cursor-pointer hover:text-blue-500 transition text-white"
+                            @click="showShareModal = true"></i>
+
+                        <template x-teleport="body">
+                            <div x-show="showShareModal"
+                                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" x-cloak>
+                                <div class="bg-zinc-900 border border-zinc-800 w-full max-w-sm rounded-xl overflow-hidden"
+                                    @click.away="showShareModal = false">
+                                    <div class="p-4 border-b border-zinc-800 flex justify-between items-center">
+                                        <h3 class="text-white font-semibold">Share to</h3>
+                                        <button @click="showShareModal = false" class="text-zinc-400">&times;</button>
+                                    </div>
+
+                                    <div class="max-h-60 overflow-y-auto no-scrollbar p-2">
+                                        @foreach (auth()->user()->following as $follower)
+                                            <div
+                                                class="flex items-center justify-between p-2 hover:bg-zinc-800 rounded-lg group">
+                                                <div class="flex items-center space-x-3">
+                                                    <a href="{{ route('profile.show', $follower->username) }}"><img
+                                                            src="{{ $follower->profile_picture ? asset('storage/' . $follower->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($follower->name) }}"
+                                                            class="w-10 h-10 rounded-full"></a>
+                                                    <a href="{{ route('profile.show', $follower->username) }}">
+                                                        <span
+                                                            class="text-white text-sm">{{ $follower->username }}</span>
+                                                    </a>
+                                                </div>
+                                                <button
+                                                    class="bg-blue-600 text-white px-4 py-1 rounded-md text-xs font-semibold"
+                                                    @click="sharePost({{ $post->id }}, {{ $follower->id }}); showShareModal = false">
+                                                    Send
+                                                </button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
                     </div>
 
                     {{-- Likes Count Display --}}
@@ -323,27 +358,27 @@
                                     
                                     <button @click="replyTo = comment.id; replyText = ' '"
                                     class="text-xs text-gray-500 hover:text-gray-300 font-semibold">
-                                Reply
+                                <i class="fa-solid fa-reply text-sm"></i>
                                 </button>
 
                                 <button @click="deleteComment(comment.id)"
                                     class="text-xs text-red-500 hover:text-red-400">
-                                    Delete
+                                    <i class="fa-solid fa-trash text-sm"></i>
                                 </button>
                         </div>
 
                         {{-- Reply Input --}}
-                        <div x-show="replyTo === comment.id" x-cloak class="mt-2 ml-2">
+                        <div x-show="replyTo === comment.id; replyText = ''" x-cloak class="mt-2 ml-2">
                             <form @submit.prevent="submitReply(comment.id)" class="flex items-center space-x-2">
                                 <input type="text" x-model="replyText" placeholder="Reply to this comment..."
-                                    class="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none">
+                                    class="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none border-none focus:ring-0">
                                 <button type="submit"
                                     class="text-blue-500 text-sm font-semibold hover:text-blue-400 transition">
-                                    Reply
+                                    <i class="fa-solid fa-reply text-sm"></i>
                                 </button>
                                 <button type="button" @click="replyTo = null"
                                     class="text-gray-500 text-sm hover:text-gray-300">
-                                    Cancel
+                                    <i class="fa-solid fa-xmark text-sm"></i>
                                 </button>
                             </form>
                         </div>
@@ -364,7 +399,7 @@
                                                 x-text="reply.created_at_formatted"></span>
                                             <button @click="deleteComment(reply.id)"
                                                 class="text-xs text-red-500 hover:text-red-400">
-                                                Delete
+                                                <i class="fa-solid fa-trash text-sm"></i>
                                             </button>
                                         </div>
                                     </div>
@@ -386,13 +421,32 @@
     <div class="mt-4 border-t border-gray-800 pt-4">
         <form @submit.prevent="submitComment" class="flex items-center space-x-2">
             <input type="text" x-model="newComment" placeholder="Add a comment..."
-                class="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none">
+                class="flex-1 bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none border-none focus:ring-0">
             <button type="submit" class="text-blue-500 text-sm font-semibold hover:text-blue-400 transition"
                 :disabled="!newComment.trim()" :class="{ 'opacity-50 cursor-not-allowed': !newComment.trim() }">
-                Post
+                <i class="fa-regular fa-paper-plane text-xl"></i>
             </button>
         </form>
     </div>
 </div>
 </div>
 </div>
+
+<script>
+    function sharePost(postId, receiverId) {
+        fetch('/messages/share', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                post_id: postId,
+                receiver_id: receiverId,
+                // message: "Check out this post: " + window.location.origin + "/posts/" + postId
+            })
+        }).then(res => {
+            if (res.ok) alert('Sent successfully!');
+        });
+    }
+</script>

@@ -55,6 +55,8 @@ Route::middleware('auth')->group(function () {
 
     // Send Message - Message bhejni ki API
     Route::post('/messages/{conversation}/send', [MessageController::class, 'send'])->name('messages.send');
+    Route::post('/messages/share', [MessageController::class, 'share'])->name('messages.share');
+    // Route::get('/posts/{id}', [PostController::class, 'show'])->name('posts.show');
 });
 
 require __DIR__ . '/auth.php';

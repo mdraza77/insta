@@ -45,19 +45,62 @@
             </div> --}}
 
             <div id="chat-window" class="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar bg-black scroll-smooth">
-
                 @forelse ($messages as $msg)
                     <div class="flex {{ $msg->sender_id == auth()->id() ? 'justify-end' : 'justify-start' }}">
 
                         <div title="{{ $msg->created_at->format('M d, Y h:i A') }}"
-                            class="max-w-xs md:max-w-md px-4 py-2 text-sm leading-relaxed break-words
-                rounded-2xl shadow-sm
+                            class="max-w-xs md:max-w-md px-1 py-1 text-sm leading-relaxed break-words rounded-2xl shadow-sm
+                {{ $msg->sender_id == auth()->id() ? 'bg-blue-600 text-white rounded-br-none' : 'bg-zinc-800 text-white rounded-bl-none' }}">
 
-                {{ $msg->sender_id == auth()->id()
-                    ? 'bg-blue-600 text-white rounded-br-none'
-                    : 'bg-zinc-800 text-white rounded-bl-none' }}">
+                            {{-- Agar Message mein Post ya Reel share ki gayi hai --}}
+                            @if ($msg->post_id && $msg->post)
+                                <div class="mb-1 overflow-hidden rounded-xl bg-zinc-900 border border-white/10">
+                                    {{-- Post ka preview --}}
+                                    <a href="#" class="block">
+                                        {{-- Image ya Video Thumbnail --}}
+                                        <div class="relative aspect-square w-full min-w-[200px]">
+                                            {{-- <img src="{{ asset('storage/' . $msg->post->media->first()->file_path) }}"
+                                                class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"> --}}
 
-                            {{ $msg->body }}
+                                            @php
+                                                $media = $msg->post?->media?->first();
+                                            @endphp
+
+                                            @if ($media)
+                                                <img src="{{ asset('storage/' . $media->media_url) }}"
+                                                    class="w-full h-64 object-cover rounded-lg">
+                                            @else
+                                                <div
+                                                    class="w-full h-64 bg-zinc-800 flex items-center justify-center text-gray-500">
+                                                    No media
+                                                </div>
+                                            @endif
+
+                                            {{-- Agar Reel hai toh play icon dikhao --}}
+                                            @if ($msg->post->is_reel)
+                                                <div class="absolute inset-0 flex items-center justify-center">
+                                                    <i class="fa-solid fa-play text-white text-2xl opacity-70"></i>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        {{-- Post Owner details --}}
+                                        <div class="p-2 flex items-center space-x-2 bg-zinc-900">
+                                            <img src="{{ $msg->post->user->profile_picture
+                                                ? asset('storage/' . $msg->post->user->profile_picture)
+                                                : 'https://ui-avatars.com/api/?name=' . urlencode($msg->post->user->name) }}"
+                                                class="w-5 h-5 rounded-full object-cover">
+                                            <span
+                                                class="text-[12px] font-semibold truncate">{{ $msg->post->user->username }}</span>
+                                        </div>
+                                    </a>
+                                </div>
+                            @endif
+
+                            {{-- Actual Message Text --}}
+                            <div class="px-3 py-1">
+                                {{ $msg->body }}
+                            </div>
                         </div>
 
                     </div>
