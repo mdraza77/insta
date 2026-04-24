@@ -320,14 +320,14 @@
         </div>
 
         {{-- Comments Section --}}
-        <div x-show="showComments" x-cloak class="mt-4 border-t border-gray-800 pt-4">
+        <div x-show="showComments" x-cloak class="mt-4 border-t border-gray-800 pt-4 overflow-y-auto no-scrollbar">
             {{-- Loading State --}}
             <div x-show="loading" class="text-center py-4">
                 <i class="fa-solid fa-spinner fa-spin text-gray-400 text-2xl"></i>
             </div>
 
             {{-- Comments List --}}
-            <div x-show="!loading" class="space-y-3 max-h-64 overflow-y-auto">
+            <div x-show="!loading" class="space-y-3 max-h-64 overflow-y-auto no-scrollbar">
                 <template x-for="comment in comments" :key="comment.id">
                     <div class="text-sm">
                         <div class="flex items-start space-x-2">
