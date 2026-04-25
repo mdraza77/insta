@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Conversation;
 use App\Models\User;
 use App\Models\Message;
+use Illuminate\Support\Facades\Crypt;
 
 class MessageController extends Controller
 {
@@ -59,7 +60,8 @@ class MessageController extends Controller
         $message = Message::create([
             'conversation_id' => $conversation->id,
             'sender_id' => auth()->id(),
-            'body' => $request->body,
+            // 'body' => $request->body,
+            'body' => Crypt::encryptString($request->body),
             'type' => 'text'
         ]);
 
