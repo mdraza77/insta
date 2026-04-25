@@ -63,18 +63,141 @@
                 </div>
 
                 {{-- Stats --}}
-                <div class="flex justify-center md:justify-start gap-8 mb-6">
+                <div class="flex justify-center md:justify-start gap-8 mb-6" x-data="{ showFollowers: false, showFollowings: false }">
                     <div class="text-center md:text-left">
                         <span class="font-bold text-white block md:inline">{{ $user->posts_count }}</span>
                         <span class="text-gray-500 text-sm">Posts</span>
                     </div>
-                    <div class="text-center md:text-left cursor-pointer hover:opacity-70">
+
+                    {{-- Followers List Trigger --}}
+                    <div class="text-center md:text-left cursor-pointer hover:opacity-70" @click="showFollowers = true">
                         <span class="font-bold text-white block md:inline">{{ $user->followers_count }}</span>
                         <span class="text-gray-500 text-sm">Followers</span>
+
+                        <template x-teleport="body">
+                            <div x-show="showFollowers"
+                                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" x-cloak>
+                                <div class="bg-zinc-900 border border-zinc-800 w-full max-w-sm rounded-xl overflow-hidden"
+                                    @click.away="showFollowers = false">
+                                    <div class="p-4 border-b border-zinc-800 flex justify-between items-center">
+                                        <h3 class="text-white font-semibold">Followers</h3>
+                                        <button @click="showFollowers = false"
+                                            class="text-zinc-400 text-2xl">&times;</button>
+                                    </div>
+
+                                    <div class="max-h-[400px] overflow-y-auto no-scrollbar p-2">
+                                        @forelse ($user->followers as $follower)
+                                            {{-- Har follower ki apni state --}}
+                                            <div x-data="{
+                                                isRemoved: false,
+                                                removeFollower() {
+                                                    // Seedhe fetch call, koi alert/confirm nahi
+                                                    fetch('{{ route('follower.remove', $follower->id) }}', {
+                                                            method: 'POST',
+                                                            headers: {
+                                                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                                'Content-Type': 'application/json'
+                                                            }
+                                                        })
+                                                        .then(res => res.json())
+                                                        .then(data => {
+                                                            if (data.status === 'success') {
+                                                                this.isRemoved = true;
+                                                            }
+                                                        });
+                                                }
+                                            }"
+                                                class="flex items-center justify-between p-3 hover:bg-zinc-800/50 rounded-lg group">
+
+                                                <div class="flex items-center space-x-3"
+                                                    :class="isRemoved ? 'opacity-40' : ''">
+                                                    <img src="{{ $follower->profile_picture ? asset('storage/' . $follower->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($follower->username) }}"
+                                                        class="w-10 h-10 rounded-full object-cover">
+                                                    <div class="flex flex-col">
+                                                        <span
+                                                            class="text-white text-sm font-semibold">{{ $follower->username }}</span>
+                                                        <span
+                                                            class="text-gray-500 text-xs">{{ $follower->name }}</span>
+                                                    </div>
+                                                </div>
+
+                                                {{-- Remove Button: Click par state change hogi --}}
+                                                <button @click="removeFollower()" :disabled="isRemoved"
+                                                    :class="isRemoved ? 'bg-transparent text-gray-500 border border-zinc-800' :
+                                                        'bg-zinc-800 text-white hover:bg-zinc-700'"
+                                                    class="px-4 py-1.5 rounded-lg text-xs font-semibold transition min-w-[80px]"
+                                                    x-text="isRemoved ? 'Removed' : 'Remove'">
+                                                </button>
+                                            </div>
+                                        @empty
+                                            <div class="p-8 text-center text-gray-500 text-sm">No followers yet.</div>
+                                        @endforelse
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
                     </div>
-                    <div class="text-center md:text-left cursor-pointer hover:opacity-70">
+
+                    <div class="text-center md:text-left cursor-pointer hover:opacity-70"
+                        @click="showFollowings = true">
                         <span class="font-bold text-white block md:inline">{{ $user->following_count }}</span>
                         <span class="text-gray-500 text-sm">Following</span>
+
+                        <template x-teleport="body">
+                            <div x-show="showFollowings"
+                                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" x-cloak>
+                                <div class="bg-zinc-900 border border-zinc-800 w-full max-w-sm rounded-xl overflow-hidden"
+                                    @click.away="showFollowings = false">
+                                    <div class="p-4 border-b border-zinc-800 flex justify-between items-center">
+                                        <h3 class="text-white font-semibold">Followings</h3>
+                                        <button @click="showFollowings = false"
+                                            class="text-zinc-400 text-2xl">&times;</button>
+                                    </div>
+
+                                    <div class="max-h-[400px] overflow-y-auto no-scrollbar p-2">
+                                        @forelse ($user->following as $following)
+                                            <div class="flex items-center justify-between p-3 hover:bg-zinc-800/50 rounded-lg group"
+                                                x-data="{
+                                                    isFollowing: true,
+                                                    toggleFollow() {
+                                                        fetch('{{ route('user.follow', $following->id) }}', {
+                                                                method: 'POST',
+                                                                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' }
+                                                            })
+                                                            .then(res => res.json())
+                                                            .then(data => { this.isFollowing = (data.status === 'following'); });
+                                                    }
+                                                }">
+                                                <div class="flex items-center space-x-3">
+                                                    <a href="{{ route('profile.show', $following->username) }}">
+                                                        <img src="{{ $following->profile_picture ? asset('storage/' . $following->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($following->username) }}"
+                                                            class="w-10 h-10 rounded-full object-cover">
+                                                    </a>
+                                                    <div class="flex flex-col">
+                                                        <a href="{{ route('profile.show', $following->username) }}"
+                                                            class="text-white text-sm font-semibold hover:underline">
+                                                            {{ $following->username }}
+                                                        </a>
+                                                        <span
+                                                            class="text-gray-500 text-xs">{{ $following->name }}</span>
+                                                    </div>
+                                                </div>
+
+                                                {{-- Unfollow Button --}}
+                                                <button @click="toggleFollow"
+                                                    :class="isFollowing ? 'bg-zinc-800 text-white' : 'bg-blue-600 text-white'"
+                                                    class="px-4 py-1.5 rounded-lg text-xs font-semibold transition"
+                                                    x-text="isFollowing ? 'Unfollow' : 'Follow'">
+                                                </button>
+                                            </div>
+                                        @empty
+                                            <div class="p-8 text-center text-gray-500 text-sm">Not following anyone.
+                                            </div>
+                                        @endforelse
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </div>
 

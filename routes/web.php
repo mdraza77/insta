@@ -43,6 +43,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     Route::post('/user/{user}/follow', [FollowController::class, 'toggleFollow'])->name('user.follow');
+    Route::post('/followers/{user}/remove', [FollowController::class, 'removeFollower'])->name('follower.remove');
 
     Route::post('/posts/{post}/save', [PostController::class, 'toggleSave'])->name('posts.save');
     Route::post('/stories', [StoryController::class, 'store'])->name('stories.store');

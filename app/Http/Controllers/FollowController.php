@@ -44,4 +44,15 @@ class FollowController extends Controller
             return response()->json(['error' => 'Something went wrong'], 500);
         }
     }
+
+    public function removeFollower(User $user)
+    {
+        // Auth user ki followers list se us user ko hata do
+        auth()->user()->followers()->detach($user->id);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Follower removed'
+        ]);
+    }
 }
