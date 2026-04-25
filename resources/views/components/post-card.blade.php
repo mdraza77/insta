@@ -238,7 +238,7 @@
                                                             class="w-10 h-10 rounded-full"></a>
                                                     <a href="{{ route('profile.show', $follower->username) }}">
                                                         <span
-                                                            class="text-white text-sm">{{ $follower->username }}</span>
+                                                            class="text-white text-sm" title="{{ $follower->name }}">{{ $follower->username }}</span>
                                                     </a>
                                                 </div>
                                                 <button

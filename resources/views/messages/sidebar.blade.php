@@ -27,7 +27,7 @@
 
                     <!-- Top row: Name + Time -->
                     <div class="flex justify-between items-center">
-                        <p class="text-white text-sm font-semibold truncate">
+                        <p class="text-white text-sm font-semibold truncate" title="{{ $chatPartner->username }}">
                             {{ $chatPartner->name }}
                         </p>
 
