@@ -24,6 +24,21 @@
         [x-cloak] {
             display: none !important;
         }
+
+        /* For hiding the default scrollbar */
+        html,
+        body {
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE/Edge */
+        }
+
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar {
+            display: none;
+            /* Chrome, Safari, Opera */
+        }
     </style>
 </head>
 
@@ -117,7 +132,7 @@
                         {{-- Caption --}}
                         <div>
                             <textarea name="caption" rows="4"
-                                class="w-full bg-transparent border-none text-white placeholder-zinc-600 focus:ring-0 p-0 text-sm outline-none resize-none"
+                                class="w-full bg-transparent border-none text-white placeholder-zinc-600 focus:ring-0 p-0 text-sm outline-none resize-none overflow-y-auto no-scrollbar"
                                 placeholder="Write a caption..."></textarea>
                         </div>
 
