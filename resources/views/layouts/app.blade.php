@@ -42,90 +42,137 @@
         </aside>
     </div>
 
-    {{-- Upload Modal  --}}
+    {{-- Upload Modal --}}
     <x-modal name="create-post" focusable>
-        <div class="bg-black border border-gray-800 p-6 rounded-xl">
+        <div class="bg-[#121212] border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl" x-data="{
+            isReel: false,
+            previews: [],
+            handleFiles(e) {
+                this.previews = [];
+                const files = e.target.files;
+                for (let i = 0; i < files.length; i++) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        this.previews.push({ url: event.target.result, type: files[i].type });
+                    }
+                    reader.readAsDataURL(files[i]);
+                }
+            }
+        }">
 
-            <h2 class="text-lg font-bold text-white mb-4 border-b border-gray-800 pb-2">
-                Create New Post
-            </h2>
+            {{-- Header --}}
+            <div class="p-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
+                <h2 class="text-md font-bold text-white tracking-tight">Create new post</h2>
+                <button x-on:click="$dispatch('close')" class="text-gray-400 hover:text-white transition">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
 
-            <form method="POST" action="{{ route('posts.store') }}" enctype="multipart/form-data" class="space-y-5">
+            <form method="POST" action="{{ route('posts.store') }}" enctype="multipart/form-data">
                 @csrf
 
-                <!-- TOGGLE -->
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-white text-sm font-medium">Post Type</p>
-                        <p class="text-xs text-gray-500">Switch to Reel to upload video only</p>
+                <div class="flex flex-col md:flex-row h-full max-h-[80vh]">
+
+                    {{-- Left Side: Media Preview --}}
+                    <div
+                        class="w-full md:w-[400px] bg-black flex items-center justify-center min-h-[300px] border-r border-zinc-800 relative">
+                        {{-- Empty State --}}
+                        <template x-if="previews.length === 0">
+                            <div class="text-center p-10 pointer-events-none">
+                                <i class="fa-regular fa-images text-5xl text-zinc-700 mb-4 block"></i>
+                                <p class="text-zinc-500 text-sm">Photos and videos will appear here</p>
+                            </div>
+                        </template>
+
+                        {{-- Image/Video Preview --}}
+                        <div class="w-full h-full overflow-hidden flex items-center justify-center bg-black">
+                            <template x-if="previews.length > 0">
+                                <div class="relative w-full h-full">
+                                    <template x-if="previews[0].type.includes('image')">
+                                        <img :src="previews[0].url" class="w-full h-full object-contain">
+                                    </template>
+                                    <template x-if="previews[0].type.includes('video')">
+                                        <video :src="previews[0].url" class="w-full h-full object-contain"
+                                            controls></video>
+                                    </template>
+                                    <div x-show="previews.length > 1"
+                                        class="absolute bottom-4 right-4 bg-black/60 text-white text-[10px] px-2 py-1 rounded-full">
+                                        + <span x-text="previews.length - 1"></span> more
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
                     </div>
 
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input id="reelToggle" type="checkbox" name="is_reel" class="sr-only peer">
+                    {{-- Right Side: Details --}}
+                    <div class="flex-1 p-5 space-y-5 overflow-y-auto no-scrollbar">
 
-                        <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:bg-purple-600 transition"></div>
-
-                        <div
-                            class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition 
-            peer-checked:translate-x-5">
+                        {{-- User Profile Header --}}
+                        <div class="flex items-center space-x-3">
+                            <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : 'https://ui-avatars.com/api/?name=' . auth()->user()->name }}"
+                                class="w-8 h-8 rounded-full object-cover border border-zinc-700">
+                            <span class="text-white text-sm font-semibold">{{ auth()->user()->username }}</span>
                         </div>
-                    </label>
+
+                        {{-- Caption --}}
+                        <div>
+                            <textarea name="caption" rows="4"
+                                class="w-full bg-transparent border-none text-white placeholder-zinc-600 focus:ring-0 p-0 text-sm outline-none resize-none"
+                                placeholder="Write a caption..."></textarea>
+                        </div>
+
+                        <hr class="border-zinc-800">
+
+                        {{-- Inputs --}}
+                        <div class="space-y-4">
+                            {{-- Media Input --}}
+                            <div>
+                                <label
+                                    class="cursor-pointer bg-zinc-800 hover:bg-zinc-700 text-white text-[12px] px-3 py-2 rounded-lg transition inline-block">
+                                    <i class="fa-solid fa-plus mr-1"></i> Add from computer
+                                    <input id="mediaInput" type="file" name="media[]" multiple required
+                                        class="hidden" @change="handleFiles">
+                                </label>
+                            </div>
+
+                            {{-- Toggle --}}
+                            <div class="flex items-center justify-between">
+                                <label class="text-sm text-zinc-300">Is this a Reel?</label>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="is_reel" class="sr-only peer" x-model="isReel">
+                                    <div
+                                        class="w-9 h-5 bg-zinc-700 rounded-full peer peer-checked:bg-purple-600 transition after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition peer-checked:after:translate-x-4">
+                                    </div>
+                                </label>
+                            </div>
+
+                            {{-- Tags & Location --}}
+                            <div class="space-y-3">
+                                <div class="flex items-center border-b border-zinc-800 pb-2">
+                                    <i class="fa-solid fa-tag text-zinc-500 mr-2 text-xs"></i>
+                                    <input type="text" name="tags"
+                                        class="bg-transparent border-none text-sm text-white focus:ring-0 p-0 w-full placeholder-zinc-600"
+                                        placeholder="Add tags...">
+                                </div>
+                                <div class="flex items-center border-b border-zinc-800 pb-2">
+                                    <i class="fa-solid fa-location-dot text-zinc-500 mr-2 text-xs"></i>
+                                    <input type="text" name="location"
+                                        class="bg-transparent border-none text-sm text-white focus:ring-0 p-0 w-full placeholder-zinc-600"
+                                        placeholder="Add location...">
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Footer/Publish --}}
+                        <div class="pt-4">
+                            <button type="submit"
+                                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded-xl text-sm transition shadow-lg shadow-purple-900/20">
+                                Share Post
+                            </button>
+                        </div>
+
+                    </div>
                 </div>
-
-                <!-- MEDIA -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-2">
-                        Select Media
-                    </label>
-
-                    <input id="mediaInput" type="file" name="media[]" multiple required
-                        class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700 cursor-pointer">
-
-                    <p id="mediaHint" class="text-xs text-gray-500 mt-1">
-                        You can upload multiple images or videos to create a carousel post.
-                    </p>
-                </div>
-
-                <!-- CAPTION -->
-                <div>
-                    <textarea name="caption" rows="3"
-                        class="w-full bg-[#1e1e2f] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 outline-none"
-                        placeholder="Write a caption..."></textarea>
-                </div>
-
-                <!-- TAGS -->
-                <div>
-                    <input type="text" name="tags"
-                        class="w-full bg-[#1e1e2f] border border-gray-700 rounded-lg text-white placeholder-gray-500 px-4 py-2 focus:ring-2 focus:ring-purple-500 outline-none"
-                        placeholder="Add tags (e.g. travel, food, coding)">
-
-                    <p class="text-xs text-gray-500 mt-1">
-                        Separate tags using commas.
-                    </p>
-                </div>
-
-                <!-- LOCATION -->
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
-                        <i class="fa-solid fa-location-dot"></i>
-                    </span>
-
-                    <input type="text" name="location"
-                        class="w-full bg-[#1e1e2f] border border-gray-700 rounded-lg pl-10 text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 outline-none"
-                        placeholder="Add location">
-                </div>
-
-                <!-- ACTIONS -->
-                <div class="flex justify-end pt-2">
-                    <x-secondary-button x-on:click="$dispatch('close')" class="mr-2">
-                        Cancel
-                    </x-secondary-button>
-
-                    <x-primary-button class="bg-purple-600 hover:bg-purple-700">
-                        Publish
-                    </x-primary-button>
-                </div>
-
             </form>
         </div>
     </x-modal>
