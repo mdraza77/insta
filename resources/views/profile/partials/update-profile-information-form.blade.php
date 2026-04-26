@@ -20,10 +20,17 @@
         <div x-data="imageCropper()">
             <input type="file" id="upload-photo" @change="handleFile" class="hidden" accept="image/*">
 
-            <button type="button" @click="document.getElementById('upload-photo').click()"
-                class="bg-blue-600 px-4 py-2 rounded text-sm">
-                Change Photo
-            </button>
+            <div class="flex items-center gap-4">
+                <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}"
+                    class="w-16 h-16 rounded-full object-cover">
+
+                <div>
+                    <button type="button" @click="document.getElementById('upload-photo').click()"
+                        class="change-picture-button">
+                        <i class="fa-solid fa-camera"></i>
+                    </button>
+                </div>
+            </div>
 
             <template x-teleport="body">
                 <div x-show="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">

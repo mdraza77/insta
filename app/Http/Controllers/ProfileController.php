@@ -29,6 +29,8 @@ class ProfileController extends Controller
      */
     public function update(Request $request): RedirectResponse
     {
+        Log::info("Zing Log: Incoming Request Data:", $request->all());
+        
         $user = $request->user();
 
         // USERNAME 14-DAY RULE
@@ -160,6 +162,9 @@ class ProfileController extends Controller
 
     public function updatePhoto(Request $request)
     {
+        Log::info("Zing Log: updatePhoto function started.", ['user_id' => auth()->id()]);
+        Log::info("Zing Log: Incoming Request Data:", $request->all());
+
         // 1. Validation: Ab hum 'image' (base64 string) expect kar rahe hain
         $request->validate([
             'image' => 'required|string'
