@@ -135,27 +135,72 @@ class ProfileController extends Controller
         return view('profile.show', compact('user', 'posts', 'reels', 'savedPosts'));
     }
 
+    // public function updatePhoto(Request $request)
+    // {
+    //     $request->validate([
+    //         'photo' => 'required|image|max:2048'
+    //     ]);
+
+    //     $user = auth()->user();
+
+    //     // Old Image Delete
+    //     if ($user->profile_picture) {
+    //         Storage::disk('public')->delete($user->profile_picture);
+    //     }
+
+    //     // file store in local storage
+    //     $path = $request->file('photo')->store('profiles', 'public');
+
+    //     // save path in DB
+    //     $user->profile_picture = $path;
+    //     $user->save();
+
+    //     return back();
+    // }
+
     public function updatePhoto(Request $request)
     {
+        // 1. Validation: Ab hum 'image' (base64 string) expect kar rahe hain
         $request->validate([
-            'photo' => 'required|image|max:2048'
+            'image' => 'required|string'
         ]);
 
         $user = auth()->user();
 
-        // Old Image Delete
+        // 2. Base64 Data ko process karna
+        $imageData = $request->image;
+
+        // Base64 string se metadata hatana (e.g., "data:image/jpeg;base64,")
+        if (preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
+            $imageData = substr($imageData, strpos($imageData, ',') + 1);
+            $type = strtolower($type[1]); // jpg, png, etc.
+
+            if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
+                return response()->json(['error' => 'invalid image type'], 400);
+            }
+            $imageData = base64_decode($imageData);
+        } else {
+            return response()->json(['error' => 'base64 decode failed'], 400);
+        }
+
+        // 3. Purani photo delete karna
         if ($user->profile_picture) {
             Storage::disk('public')->delete($user->profile_picture);
         }
 
-        // file store in local storage
-        $path = $request->file('photo')->store('profiles', 'public');
+        // 4. Nayi photo ko name dena aur save karna
+        $fileName = 'profiles/' . $user->id . '_' . time() . '.' . $type;
+        Storage::disk('public')->put($fileName, $imageData);
 
-        // save path in DB
-        $user->profile_picture = $path;
+        // 5. Database update
+        $user->profile_picture = $fileName;
         $user->save();
 
-        return back();
+        // Kyunki ye AJAX/Fetch se call hoga, isliye JSON response dena behtar hai
+        return response()->json([
+            'success' => true,
+            'path' => asset('storage/' . $fileName)
+        ]);
     }
 
     public function updatePrivacy(Request $request)

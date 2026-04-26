@@ -7,7 +7,7 @@
         @method('patch')
 
         <!-- PROFILE PHOTO -->
-        <div class="flex items-center gap-4">
+        {{-- <div class="flex items-center gap-4">
             <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}"
                 class="w-16 h-16 rounded-full object-cover">
 
@@ -15,6 +15,40 @@
                 <i class="fa-solid fa-pencil"></i> Change Image
                 <input type="file" name="photo" class="hidden">
             </label>
+        </div> --}}
+
+        <div x-data="imageCropper()">
+            <input type="file" id="upload-photo" @change="handleFile" class="hidden" accept="image/*">
+
+            <button type="button" @click="document.getElementById('upload-photo').click()"
+                class="bg-blue-600 px-4 py-2 rounded text-sm">
+                Change Photo
+            </button>
+
+            <template x-teleport="body">
+                <div x-show="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+                    <div class="bg-zinc-900 rounded-xl overflow-hidden max-w-lg w-full">
+                        <div class="p-4 border-b border-zinc-800 flex justify-between items-center">
+                            <h3 class="text-white font-semibold">Crop Photo</h3>
+                            <button @click="showModal = false" class="text-gray-400">&times;</button>
+                        </div>
+
+                        <div class="p-4">
+                            <div class="max-h-[400px] overflow-hidden rounded-lg bg-black">
+                                <img id="image-to-crop" class="max-w-full">
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-zinc-800 flex justify-end gap-3">
+                            <button @click="showModal = false" class="text-white text-sm">Cancel</button>
+                            <button @click="cropAndSave"
+                                class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </template>
         </div>
 
         <!-- USERNAME -->
@@ -123,4 +157,54 @@
         </div>
 
     </form>
+
+
+    <script>
+        function imageCropper() {
+            return {
+                showModal: false,
+                cropper: null,
+
+                handleFile(e) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        this.showModal = true;
+                        const image = document.getElementById('image-to-crop');
+                        image.src = event.target.result;
+
+                        if (this.cropper) this.cropper.destroy();
+
+                        setTimeout(() => {
+                            this.cropper = new Cropper(image, {
+                                aspectRatio: 1, // Square crop for profile
+                                viewMode: 2,
+                                dragMode: 'move',
+                            });
+                        }, 100);
+                    };
+                    reader.readAsDataURL(e.target.files[0]);
+                },
+
+                cropAndSave() {
+                    const canvas = this.cropper.getCroppedCanvas({
+                        width: 400,
+                        height: 400
+                    });
+                    const base64 = canvas.toDataURL('image/jpeg');
+
+                    // Backend par bhejne ke liye fetch use karein
+                    fetch('{{ route('profile.photo.update') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            image: base64
+                        })
+                    }).then(() => window.location.reload());
+                }
+            }
+        }
+    </script>
 </section>

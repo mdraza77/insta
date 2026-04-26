@@ -14,7 +14,7 @@
                 <img src="{{ $displayUser->profile_picture ? asset('storage/' . $displayUser->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($displayUser->name) }}"
                     class="w-full h-full object-cover rounded-full border-2 border-purple-600 p-1">
 
-                @if (auth()->id() === $user->id)
+                {{-- @if (auth()->id() === $user->id)
                     <!-- Small Button -->
                     <form method="POST" action="{{ route('profile.photo.update') }}" enctype="multipart/form-data"
                         class="absolute bottom-1 right-1">
@@ -27,7 +27,7 @@
                             <input type="file" name="photo" class="hidden" onchange="this.form.submit()">
                         </label>
                     </form>
-                @endif
+                @endif --}}
 
             </div>
 
