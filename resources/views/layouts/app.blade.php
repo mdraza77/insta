@@ -67,8 +67,26 @@
             isReel: false,
             previews: [],
             handleFiles(e) {
-                this.previews = [];
                 const files = e.target.files;
+        
+                // --- Validation Start ---
+                if (this.isReel) {
+                    for (let i = 0; i < files.length; i++) {
+                        if (!files[i].type.startsWith('video/')) {
+                            // SweetAlert Toast dikhayein
+                            Toast.fire({
+                                icon: 'error',
+                                title: 'Reels mein sirf video allow hai!'
+                            });
+                            e.target.value = ''; // Input reset karein
+                            this.previews = []; // Previews clear karein
+                            return;
+                        }
+                    }
+                }
+                // --- Validation End ---
+        
+                this.previews = [];
                 for (let i = 0; i < files.length; i++) {
                     const reader = new FileReader();
                     reader.onload = (event) => {
@@ -150,7 +168,8 @@
                                     class="cursor-pointer bg-zinc-800 hover:bg-zinc-700 text-white text-[12px] px-3 py-2 rounded-lg transition inline-block">
                                     <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Select from computer
                                     <input id="mediaInput" type="file" name="media[]" multiple required
-                                        class="hidden" @change="handleFiles">
+                                        class="hidden" @change="handleFiles"
+                                        :accept="isReel ? 'video/*' : 'image/*,video/*'">
                                 </label>
                             </div>
 
@@ -212,7 +231,7 @@
             });
         @endif
     </script>
-    
+
 </body>
 
 </html>
