@@ -33,7 +33,7 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
-        Log::info('📥 Incoming request', $request->all());
+        Log::info('Incoming request', $request->all());
 
         $request->validate([
             'caption' => 'nullable|string|max:1000',
@@ -44,29 +44,29 @@ class PostController extends Controller
             'is_reel' => 'nullable',
         ]);
 
-        // 🔥 IMPORTANT FIX
+        // IMPORTANT FIX
         $isReel = $request->has('is_reel');
 
-        Log::info('🎬 isReel value', ['isReel' => $isReel]);
+        Log::info('isReel value', ['isReel' => $isReel]);
 
         $files = $request->file('media');
-        Log::info('📁 Media count', ['count' => count($files ?? [])]);
+        Log::info('Media count', ['count' => count($files ?? [])]);
 
-        // 🔥 REEL VALIDATION
+        // REEL VALIDATION
         if ($isReel) {
 
             if (!$files || count($files) !== 1) {
-                Log::error('❌ Reel validation failed: multiple files');
+                Log::error('Reel validation failed: multiple files');
                 return back()->withErrors(['media' => 'Only one video allowed for reels']);
             }
 
             $file = $files[0];
             $mime = $file->getMimeType();
 
-            Log::info('🎥 Reel file mime', ['mime' => $mime]);
+            Log::info('Reel file mime', ['mime' => $mime]);
 
             if (!str_contains($mime, 'video')) {
-                Log::error('❌ Reel validation failed: not a video');
+                Log::error('Reel validation failed: not a video');
                 return back()->withErrors(['media' => 'Reels must be a video']);
             }
         }
@@ -78,7 +78,7 @@ class PostController extends Controller
             'is_reel' => $isReel,
         ]);
 
-        Log::info('✅ Post created', ['post_id' => $post->id]);
+        Log::info('Post created', ['post_id' => $post->id]);
 
         // STORE MEDIA
         foreach ($files as $index => $file) {
@@ -87,7 +87,7 @@ class PostController extends Controller
             $mime = $file->getMimeType();
             $type = str_contains($mime, 'video') ? 'video' : 'image';
 
-            Log::info('📸 Media stored', [
+            Log::info('Media stored', [
                 'path' => $path,
                 'type' => $type,
                 'order' => $index
@@ -117,7 +117,7 @@ class PostController extends Controller
                     'name' => $tag
                 ]);
 
-                Log::info('🏷️ Tag processed', [
+                Log::info('Tag processed', [
                     'name' => $tag,
                     'id' => $tagModel->id
                 ]);
@@ -137,7 +137,7 @@ class PostController extends Controller
             );
         }
 
-        Log::info('🎉 Post creation completed');
+        Log::info('Post creation completed');
 
         return back()->with('success', 'Post created successfully');
     }

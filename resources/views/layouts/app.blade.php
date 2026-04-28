@@ -17,8 +17,12 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
 
+    {{-- Crop Profile Image --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+    {{-- sweetalert2 --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         [x-cloak] {
@@ -191,6 +195,24 @@
             </form>
         </div>
     </x-modal>
+
+    <script>
+        @if ($errors->has('media'))
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+            });
+
+            Toast.fire({
+                icon: 'error',
+                title: "{{ $errors->first('media') }}"
+            });
+        @endif
+    </script>
+    
 </body>
 
 </html>
