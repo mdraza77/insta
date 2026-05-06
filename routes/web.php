@@ -22,7 +22,7 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/home', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 Route::get('/reels', [ReelController::class, 'index'])->middleware(['auth'])->name('reels.index');
 
 Route::middleware('auth')->group(function () {

@@ -371,8 +371,8 @@
                         // const savedMute = localStorage.getItem('reelMuted');
                         // video.muted = savedMute === null ? true : savedMute === 'true';
                         // Option 3: Browser autoplay policy handle karo
-                        video.muted = true; // ✅ Testing: true | Production: false ya user preference
-                        this.isMuted[index] = true;
+                        video.muted = false; // ✅ Testing: true | Production: false ya user preference
+                        this.isMuted[index] = false;
 
                         video.play().then(() => {
                             this.isPlaying[index] = true;
