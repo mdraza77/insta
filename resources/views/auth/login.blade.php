@@ -35,12 +35,13 @@
                 <form method="POST" action="{{ route('login') }}" class="space-y-4">
                     @csrf
 
-                    <!-- Email -->
-                    <input type="email" name="email" placeholder="Email"
-                        value="{{ old('email', 'mdraza8297@gmail.com') }}"
+                    <!-- Email/Username Input -->
+                    <input type="text" name="login" placeholder="Email or Username"
+                        value="{{ old('login', 'mdraza8297@gmail.com') }}"
                         class="w-full px-4 py-3 rounded-lg bg-[#1e1e2f] border border-gray-700 focus:ring-2 focus:ring-purple-500 outline-none">
+
                     <small class="text-red-500">
-                        @error('email')
+                        @error('login')
                             {{ $message }}
                         @enderror
                     </small>
