@@ -12,8 +12,7 @@
                 @foreach ($reels as $index => $reel)
                     {{-- Single Reel Card --}}
                     <div class="snap-start w-full h-full flex-shrink-0 relative flex items-center justify-center"
-                        data-reel-index="{{ $index }}"
-                        data-reel-id="{{ $reel->id }}">
+                        data-reel-index="{{ $index }}" data-reel-id="{{ $reel->id }}">
 
                         {{-- Reel Video Card with Rounded Corners --}}
                         <div class="relative w-full h-full bg-gray-900 rounded-xl overflow-hidden">
@@ -252,8 +251,8 @@
                         <div class="flex space-x-3">
                             <a href="#" class="flex-shrink-0">
                                 <img :src="comment.user.profile_picture ?
-                                            '/storage/' + comment.user.profile_picture :
-                                            'https://ui-avatars.com/api/?name=' + encodeURIComponent(comment.user.name)"
+                                                '/storage/' + comment.user.profile_picture :
+                                                'https://ui-avatars.com/api/?name=' + encodeURIComponent(comment.user.name)"
                                  class="w-8 h-8 rounded-full object-cover border border-gray-700">
                         </a>
                         <div class="flex-1 min-w-0">
@@ -346,13 +345,17 @@
                             this.observer.observe(el);
                         });
 
-                        // 🔥 Auto-scroll to active reel if coming from feed click
-                        @if(isset($activeReelId) && $activeReelId)
+                        // Auto-scroll to active reel if coming from feed click
+                        @if (isset($activeReelId) && $activeReelId)
                             this.$nextTick(() => {
-                                const targetElement = document.querySelector('[data-reel-id="{{ $activeReelId }}"]');
+                                const targetElement = document.querySelector(
+                                    '[data-reel-id="{{ $activeReelId }}"]');
                                 if (targetElement) {
                                     setTimeout(() => {
-                                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                        targetElement.scrollIntoView({
+                                            behavior: 'smooth',
+                                            block: 'start'
+                                        });
                                     }, 300);
                                 }
                             });
@@ -363,15 +366,7 @@
                 playVideo(index) {
                     const video = this.$refs['video' + index];
                     if (video) {
-                        // 🔧 PRODUCTION NOTE FOR MUTE:
-                        // Abhi muted=true hai testing ke liye.
-                        // Future production ke liye:
-                        // Option 1: video.muted = false; (direct unmute)
-                        // Option 2: localStorage se user preference lo
-                        // const savedMute = localStorage.getItem('reelMuted');
-                        // video.muted = savedMute === null ? true : savedMute === 'true';
-                        // Option 3: Browser autoplay policy handle karo
-                        video.muted = false; // ✅ Testing: true | Production: false ya user preference
+                        video.muted = false; //
                         this.isMuted[index] = false;
 
                         video.play().then(() => {
@@ -426,8 +421,6 @@
                     if (video) {
                         video.muted = !video.muted;
                         this.isMuted[index] = video.muted;
-                        // 🔧 PRODUCTION: User preference save karo
-                        // localStorage.setItem('reelMuted', video.muted.toString());
                     }
                 },
 
@@ -494,8 +487,6 @@
                 }).then(res => res.json())
                 .then(data => {
                     console.log('Follow toggled:', data);
-                    // UI update ke liye page reload ya button state change karo
-                    // location.reload(); // Simple solution: reload to show updated state
                 })
                 .catch(err => {
                     console.error('Follow error:', err);
