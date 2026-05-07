@@ -53,22 +53,68 @@ class MessageController extends Controller
     }
 
     // 3. Send Message logic
+    // public function send(Request $request, Conversation $conversation)
+    // {
+    //     $request->validate(['body' => 'required']);
+
+    //     $message = Message::create([
+    //         'conversation_id' => $conversation->id,
+    //         'sender_id' => auth()->id(),
+    //         // 'body' => $request->body,
+    //         'body' => Crypt::encryptString($request->body),
+    //         'type' => 'text'
+    //     ]);
+
+    //     // Conversation ka timestamp aur last_message_id update karein taaki wo inbox mein top par aaye
+    //     $conversation->update(['last_message_id' => $message->id]);
+
+    //     return response()->json(['success' => true, 'message' => $message]);
+    // }
+
     public function send(Request $request, Conversation $conversation)
     {
-        $request->validate(['body' => 'required']);
+        // 1. Validation: 
+        $request->validate([
+            'body' => 'nullable|string',
+            'media' => 'nullable|file|mimes:jpg,jpeg,png,gif,mp4,mp3,wav,ogg,pdf,zip|max:51200',
+        ]);
 
+        $mediaPath = null;
+        $type = 'text';
+
+        // 2. Media Handling
+        if ($request->hasFile('media')) {
+            $file = $request->file('media');
+            $mime = $file->getMimeType();
+            $mediaPath = $file->store('messages/media', 'public');
+
+            if (str_contains($mime, 'image')) {
+                $type = 'image';
+            } elseif (str_contains($mime, 'video')) {
+                $type = 'video';
+            } elseif (str_contains($mime, 'audio')) {
+                $type = 'audio';
+            } else {
+                $type = 'file';
+            }
+        }
+
+        // 3. Message Creation
         $message = Message::create([
             'conversation_id' => $conversation->id,
             'sender_id' => auth()->id(),
-            // 'body' => $request->body,
-            'body' => Crypt::encryptString($request->body),
-            'type' => 'text'
+            'body' => $request->body ? Crypt::encryptString($request->body) : null,
+            'type' => $type,
+            'media_path' => $mediaPath,
         ]);
 
-        // Conversation ka timestamp aur last_message_id update karein taaki wo inbox mein top par aaye
-        $conversation->update(['last_message_id' => $message->id]);
+        // 4. Update Conversation
+        $conversation->update([
+            'last_message_id' => $message->id,
+            'updated_at' => now()
+        ]);
 
-        return response()->json(['success' => true, 'message' => $message]);
+        return response()->json(['success' => true]);
     }
 
     public function share(Request $request)
