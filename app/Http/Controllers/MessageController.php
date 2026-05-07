@@ -114,7 +114,11 @@ class MessageController extends Controller
             'updated_at' => now()
         ]);
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'html' => view('messages.single-message', ['msg' => $message])->render(),
+            'last_msg_preview' => \Illuminate\Support\Str::words($message->body ?? 'Media', 3, '...')
+        ]);
     }
 
     public function share(Request $request)

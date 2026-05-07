@@ -187,75 +187,113 @@
     </div>
 
     <script>
-        // --- 1. Old variables ---
-        const chatWindow = document.getElementById('chat-window');
-        const msgForm = document.getElementById('msg-form');
-        const fileInput = document.getElementById('media-upload');
-        const textInput = msgForm.querySelector('input[type="text"]');
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- 1. Element Selectors ---
+            const chatWindow = document.getElementById('chat-window');
+            const msgForm = document.getElementById('msg-form');
+            const fileInput = document.getElementById('media-upload');
+            const textInput = msgForm.querySelector('input[type="text"]');
 
-        // --- 2. New variables for Preview ---
-        const previewContainer = document.getElementById('media-preview-container');
-        const previewContent = document.getElementById('preview-content');
-        const removeMediaBtn = document.getElementById('remove-media');
+            const previewContainer = document.getElementById('media-preview-container');
+            const previewContent = document.getElementById('preview-content');
+            const removeMediaBtn = document.getElementById('remove-media');
 
-        // --- 3. Page load scroll ---
-        if (chatWindow) chatWindow.scrollTop = chatWindow.scrollHeight;
+            // --- 2. Scroll Logic ---
+            const scrollChat = () => {
+                if (chatWindow) {
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                }
+            };
 
-        // --- 4. NEW: Preview Generate Logic ---
-        fileInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                previewContent.innerHTML = '';
+            // Scroll to bottom on initial load and when images load
+            window.onload = scrollChat;
+            chatWindow.querySelectorAll('img').forEach(img => {
+                img.onload = scrollChat;
+            });
 
-                reader.onload = function(e) {
-                    let html = '';
-                    if (file.type.includes('image')) {
-                        html = `<img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg">`;
-                    } else if (file.type.includes('video')) {
-                        html =
-                            `<video src="${e.target.result}" class="w-full h-32 object-cover rounded-lg" muted></video>`;
-                    } else {
-                        html = `<div class="p-3 text-xs text-white bg-zinc-800 rounded-lg">${file.name}</div>`;
+            // --- 3. Media Preview Logic ---
+            fileInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    previewContent.innerHTML = ''; // Clear previous preview
+
+                    reader.onload = function(e) {
+                        let html = '';
+                        if (file.type.includes('image')) {
+                            html =
+                                `<img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg">`;
+                        } else if (file.type.includes('video')) {
+                            html =
+                                `<video src="${e.target.result}" class="w-full h-32 object-cover rounded-lg" muted autoplay></video>`;
+                        } else {
+                            html = `<div class="p-3 text-xs text-white bg-zinc-800 rounded-lg flex items-center gap-2">
+                                    <i class="fa-solid fa-file"></i> ${file.name}
+                                </div>`;
+                        }
+
+                        previewContent.innerHTML = html;
+                        previewContainer.classList.remove('hidden');
+                        scrollChat(); // Scroll to show the preview if needed
                     }
-
-                    previewContent.innerHTML = html;
-                    previewContainer.classList.remove('hidden');
+                    reader.readAsDataURL(file);
                 }
-                reader.readAsDataURL(file);
-            }
-        });
+            });
 
-        // --- 5. NEW: Preview Remove Logic (X button) ---
-        removeMediaBtn.addEventListener('click', () => {
-            fileInput.value = '';
-            previewContainer.classList.add('hidden'); // Hide preview container
-            previewContent.innerHTML = '';
-        });
+            // --- 4. Remove Preview Logic ---
+            removeMediaBtn.addEventListener('click', () => {
+                fileInput.value = ''; // Reset file input
+                previewContainer.classList.add('hidden'); // Hide preview box
+                previewContent.innerHTML = '';
+            });
 
-        // --- 6. Form Submit Logic ---
-        msgForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+            // --- 5. AJAX Form Submit Logic ---
+            msgForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
 
-            if (!textInput.value.trim() && !fileInput.files[0]) return;
+                const messageBody = textInput.value.trim();
+                if (!messageBody && !fileInput.files[0]) return;
 
-            const formData = new FormData();
-            formData.append('body', textInput.value);
-
-            if (fileInput.files[0]) {
-                formData.append('media', fileInput.files[0]);
-            }
-
-            try {
-                const res = await axios.post("{{ route('messages.send', $conversation->id) }}", formData);
-
-                if (res.data.success) {
-                    window.location.reload(); // Page refresh to show new message
+                const formData = new FormData();
+                formData.append('body', messageBody);
+                if (fileInput.files[0]) {
+                    formData.append('media', fileInput.files[0]);
                 }
-            } catch (err) {
-                console.error(err);
-                alert('Sending failed!');
-            }
+
+                // Provide visual feedback: disable submit button
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+
+                try {
+                    const res = await axios.post("{{ route('messages.send', $conversation->id) }}",
+                        formData);
+
+                    if (res.data.success) {
+                        // Inject the new message HTML returned from the server
+                        const msgHtml = res.data.html;
+                        chatWindow.insertAdjacentHTML('beforeend', msgHtml);
+
+                        // Reset form and UI
+                        msgForm.reset();
+                        previewContainer.classList.add('hidden');
+                        previewContent.innerHTML = '';
+
+                        // Smooth scroll to the new message
+                        scrollChat();
+
+                        // If the message contains an image, scroll again once it loads
+                        const newMsgImg = chatWindow.lastElementChild.querySelector('img');
+                        if (newMsgImg) {
+                            newMsgImg.onload = scrollChat;
+                        }
+                    }
+                } catch (err) {
+                    console.error("Submission Error:", err);
+                    alert('Error: Could not send message.');
+                } finally {
+                    submitBtn.disabled = false; // Re-enable button
+                }
+            });
         });
     </script>
 
@@ -266,6 +304,22 @@
 
         .media-card:hover {
             transform: scale(1.01);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 @endsection
