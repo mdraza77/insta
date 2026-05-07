@@ -39,12 +39,9 @@
                             class="max-w-xs md:max-w-md px-1 py-1 text-sm leading-relaxed break-words rounded-2xl shadow-sm
                 {{ $msg->sender_id == auth()->id() ? 'bg-blue-600 text-white rounded-br-none' : 'bg-zinc-800 text-white rounded-bl-none' }}">
 
-                            {{-- Agar Message mein Post ya Reel share ki gayi hai --}}
                             @if ($msg->post_id && $msg->post)
                                 <div class="mb-1 overflow-hidden rounded-xl bg-zinc-900 border border-white/10">
-                                    {{-- Post ka preview --}}
                                     <a href="#" class="block">
-                                        {{-- Image ya Video Thumbnail --}}
                                         <div class="relative aspect-square w-full min-w-[200px]">
                                             {{-- <img src="{{ asset('storage/' . $msg->post->media->first()->file_path) }}"
                                                 class="w-full h-full object-cover opacity-80 hover:opacity-100 transition"> --}}
@@ -63,7 +60,6 @@
                                                 </div>
                                             @endif
 
-                                            {{-- Agar Reel hai toh play icon dikhao --}}
                                             @if ($msg->post->is_reel)
                                                 <div class="absolute inset-0 flex items-center justify-center">
                                                     <i class="fa-solid fa-play text-white text-2xl opacity-70"></i>
@@ -83,20 +79,11 @@
                                     </a>
                                 </div>
                             @endif
-                            {{-- <div
-                                class="relative max-w-xs px-3 py-2 rounded-2xl {{ $msg->sender_id == auth()->id() ? 'bg-blue-600' : 'bg-zinc-800' }}">
-                                <p class="text-sm pb-1">{{ $msg->body }}</p>
 
-                                <span class="text-[10px] text-white/60 block text-right leading-none">
-                                    {{ $msg->created_at->format('h:i A') }}
-                                </span>
-                            </div> --}}
-
-                            {{-- Message Bubble ke andar change karein --}}
                             <div
                                 class="relative max-w-xs px-1 py-1 rounded-2xl {{ $msg->sender_id == auth()->id() ? 'bg-blue-600' : 'bg-zinc-800' }}">
 
-                                {{-- Display Image --}}
+                                {{-- 1. Display Image --}}
                                 @if ($msg->type === 'image')
                                     <div class="mb-1">
                                         <img src="{{ asset('storage/' . $msg->media_path) }}"
@@ -105,7 +92,7 @@
                                     </div>
                                 @endif
 
-                                {{-- Display Video --}}
+                                {{-- 2. Display Video --}}
                                 @if ($msg->type === 'video')
                                     <div class="mb-1">
                                         <video controls class="rounded-xl max-w-full">
@@ -114,7 +101,33 @@
                                     </div>
                                 @endif
 
-                                {{-- Text Body (sirf tab dikhayein jab body null na ho) --}}
+                                {{-- 3. Display Audio --}}
+                                @if ($msg->type === 'audio')
+                                    <div class="mb-2 p-2 bg-zinc-900/50 rounded-xl">
+                                        <audio controls class="w-full h-8 brightness-90 invert">
+                                            <source src="{{ asset('storage/' . $msg->media_path) }}" type="audio/mpeg">
+                                        </audio>
+                                    </div>
+                                @endif
+
+                                {{-- 4. Display PDF / General Files --}}
+                                @if ($msg->type === 'file')
+                                    <div class="mb-2">
+                                        <a href="{{ asset('storage/' . $msg->media_path) }}" target="_blank"
+                                            class="flex items-center gap-3 p-3 bg-zinc-900 rounded-xl border border-gray-700 hover:bg-zinc-800 transition">
+                                            <div class="bg-red-500/20 p-2 rounded-lg">
+                                                <i class="fa-solid fa-file-pdf text-red-500 text-xl"></i>
+                                            </div>
+                                            <div class="overflow-hidden">
+                                                <p class="text-xs text-white font-medium truncate">View Document</p>
+                                                <p class="text-[10px] text-gray-500 uppercase">
+                                                    {{ pathinfo($msg->media_path, PATHINFO_EXTENSION) }} File</p>
+                                            </div>
+                                            <i class="fa-solid fa-download ml-auto text-gray-500 text-xs"></i>
+                                        </a>
+                                    </div>
+                                @endif
+
                                 @if ($msg->body)
                                     <p class="text-sm px-2 py-1">{{ $msg->body }}</p>
                                 @endif
@@ -134,13 +147,6 @@
             </div>
 
             <div class="p-4 bg-black border-t border-gray-800">
-                {{-- <form id="msg-form"
-                    class="flex items-center bg-zinc-900 border border-gray-700 rounded-full px-4 py-2 focus-within:border-gray-500 transition">
-                    <input type="text" placeholder="Message..."
-                        class="flex-1 bg-transparent border-none text-white focus:ring-0 text-sm">
-                    <button type="submit" class="ml-2 text-blue-500 font-bold text-sm hover:text-white transition"><i
-                            class="fa-regular fa-paper-plane text-xl"></i></button>
-                </form> --}}
 
                 <div id="media-preview-container" class="hidden mb-2 relative inline-block">
                     <div id="preview-content" class="rounded-lg overflow-hidden border border-gray-700 max-w-[200px]"></div>
@@ -167,158 +173,59 @@
 
     </div>
 
-    {{-- <script>
-        // Scroll to bottom
-        const chatWindow = document.getElementById('chat-window');
-        if (chatWindow) chatWindow.scrollTop = chatWindow.scrollHeight;
-
-        // Form Submit Logic
-        document.getElementById('msg-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const input = e.target.querySelector('input');
-            const body = input.value.trim();
-            if (!body) return;
-
-            try {
-                const res = await axios.post("{{ route('messages.send', $conversation->id) }}", {
-                    body
-                });
-                if (res.data.success) {
-                    window.location.reload();
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        });
-    </script>
-
     <script>
-        document.getElementById('msg-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const input = e.target.querySelector('input[type="text"]');
-    const fileInput = document.getElementById('media-upload');
-    const body = input.value.trim();
-    
-    // Agar na text hai na file, toh return karein
-    if (!body && !fileInput.files[0]) return;
-
-    const formData = new FormData();
-    formData.append('body', body);
-    if (fileInput.files[0]) {
-        formData.append('media', fileInput.files[0]);
-    }
-
-    try {
-        const res = await axios.post("{{ route('messages.send', $conversation->id) }}", formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
-        
-        if (res.data.success) {
-            window.location.reload();
-        }
-    } catch (err) {
-        console.error(err);
-        alert('File upload failed!');
-    }
-});
-    </script> --}}
-
-    {{-- <script>
-    // 1. Page load par scroll neeche karein
-    const chatWindow = document.getElementById('chat-window');
-    if (chatWindow) chatWindow.scrollTop = chatWindow.scrollHeight;
-
-    // 2. Single Submit Logic (Merged & Simple)
-    document.getElementById('msg-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const textInput = e.target.querySelector('input[type="text"]');
-        const fileInput = document.getElementById('media-upload');
-        
-        // Agar kuch bhi nahi hai toh return
-        if (!textInput.value.trim() && !fileInput.files[0]) return;
-
-        // FormData banayein (Files bhejni hai isliye zaroori hai)
-        const formData = new FormData();
-        formData.append('body', textInput.value);
-        
-        if (fileInput.files[0]) {
-            formData.append('media', fileInput.files[0]);
-        }
-
-        try {
-            const res = await axios.post("{{ route('messages.send', $conversation->id) }}", formData);
-            
-            if (res.data.success) {
-                window.location.reload(); // Page refresh to show new message
-            }
-        } catch (err) {
-            console.error(err);
-            alert('Sending failed!');
-        }
-    });
-</script> --}}
-
-    <script>
-        // --- 1. Puraane variables ---
+        // --- 1. Old variables ---
         const chatWindow = document.getElementById('chat-window');
         const msgForm = document.getElementById('msg-form');
         const fileInput = document.getElementById('media-upload');
         const textInput = msgForm.querySelector('input[type="text"]');
 
-        // --- 2. Preview ke naye variables ---
+        // --- 2. New variables for Preview ---
         const previewContainer = document.getElementById('media-preview-container');
         const previewContent = document.getElementById('preview-content');
         const removeMediaBtn = document.getElementById('remove-media');
 
-        // --- 3. Page load par scroll neeche karein ---
+        // --- 3. Page load scroll ---
         if (chatWindow) chatWindow.scrollTop = chatWindow.scrollHeight;
 
-        // --- 4. NEW: Preview Generate karne ka Logic ---
+        // --- 4. NEW: Preview Generate Logic ---
         fileInput.addEventListener('change', function() {
             const file = this.files[0];
             if (file) {
                 const reader = new FileReader();
-                previewContent.innerHTML = ''; // Purana preview saaf karein
+                previewContent.innerHTML = '';
 
                 reader.onload = function(e) {
                     let html = '';
-                    // Check karein file image hai ya video
                     if (file.type.includes('image')) {
                         html = `<img src="${e.target.result}" class="w-full h-32 object-cover rounded-lg">`;
                     } else if (file.type.includes('video')) {
                         html =
                             `<video src="${e.target.result}" class="w-full h-32 object-cover rounded-lg" muted></video>`;
                     } else {
-                        // Audio ya anya files ke liye sirf naam dikhayein
                         html = `<div class="p-3 text-xs text-white bg-zinc-800 rounded-lg">${file.name}</div>`;
                     }
 
                     previewContent.innerHTML = html;
-                    previewContainer.classList.remove('hidden'); // Show preview container
+                    previewContainer.classList.remove('hidden');
                 }
-                reader.readAsDataURL(file); // File read karna shuru karein
+                reader.readAsDataURL(file);
             }
         });
 
-        // --- 5. NEW: Preview Remove karne ka Logic (X button) ---
+        // --- 5. NEW: Preview Remove Logic (X button) ---
         removeMediaBtn.addEventListener('click', () => {
-            fileInput.value = ''; // Input saaf karein
+            fileInput.value = '';
             previewContainer.classList.add('hidden'); // Hide preview container
             previewContent.innerHTML = '';
         });
 
-        // --- 6. Form Submit Logic (Simple) ---
+        // --- 6. Form Submit Logic ---
         msgForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Agar kuch bhi nahi hai toh return
             if (!textInput.value.trim() && !fileInput.files[0]) return;
 
-            // FormData banayein
             const formData = new FormData();
             formData.append('body', textInput.value);
 
