@@ -89,7 +89,7 @@
                                                     {{-- Shared Post Video Preview --}}
                                                     <video
                                                         class="w-full h-full object-cover opacity-90 group-hover/card:opacity-100 transition"
-                                                        muted loop onmouseover="this.play()" onmouseout="this.pause()">
+                                                        loop onmouseover="this.play()" onmouseout="this.pause()">
                                                         <source src="{{ asset('storage/' . $media->media_url) }}"
                                                             type="video/mp4">
                                                     </video>
