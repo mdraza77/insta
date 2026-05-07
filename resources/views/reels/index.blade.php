@@ -1,6 +1,4 @@
-@extends('layouts.reels-main')
-
-@section('title', 'Reels')
+@extends('layouts.main')
 
 @section('content')
     <div class="w-full h-full flex items-center justify-center">
@@ -251,8 +249,8 @@
                         <div class="flex space-x-3">
                             <a href="#" class="flex-shrink-0">
                                 <img :src="comment.user.profile_picture ?
-                                                '/storage/' + comment.user.profile_picture :
-                                                'https://ui-avatars.com/api/?name=' + encodeURIComponent(comment.user.name)"
+                                                    '/storage/' + comment.user.profile_picture :
+                                                    'https://ui-avatars.com/api/?name=' + encodeURIComponent(comment.user.name)"
                                  class="w-8 h-8 rounded-full object-cover border border-gray-700">
                         </a>
                         <div class="flex-1 min-w-0">

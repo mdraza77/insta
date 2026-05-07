@@ -1,7 +1,6 @@
-{{-- <x-app-layout> --}}
-@extends('layouts.reels-main')
+@extends('layouts.main')
 
-@section('title', 'Reels')
+@section('title', config('app.name') . ' • Messages')
 
 @section('content')
     <div class="max-w-6xl mx-auto h-[calc(100vh-30px)] flex border border-gray-800 rounded-lg overflow-hidden bg-black mt-4">
@@ -21,5 +20,4 @@
             </div>
         </div>
     </div>
-    {{-- </x-app-layout> --}}
 @endsection
