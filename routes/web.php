@@ -46,6 +46,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/followers/{user}/remove', [FollowController::class, 'removeFollower'])->name('follower.remove');
 
     Route::post('/posts/{post}/save', [PostController::class, 'toggleSave'])->name('posts.save');
+    Route::get('/posts/{id}', [PostController::class, 'show'])->name('posts.show');
     Route::post('/stories', [StoryController::class, 'store'])->name('stories.store');
 
     // Pehle specific chat wala route

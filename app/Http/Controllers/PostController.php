@@ -147,7 +147,9 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        //
+        // $post->load(['user', 'media', 'tags', 'likes', 'comments.user']);
+
+        // return view('posts.show', compact('post'));
     }
 
     /**
