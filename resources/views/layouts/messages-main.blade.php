@@ -26,6 +26,7 @@
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
         }
+
         .scrollbar-hide {
             -ms-overflow-style: none;
             scrollbar-width: none;
@@ -33,9 +34,15 @@
 
         /* Marquee animation for audio text */
         @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
         }
+
         .animate-marquee {
             animation: marquee 10s linear infinite;
         }
@@ -44,6 +51,7 @@
         .snap-y-mandatory {
             scroll-snap-type: y mandatory;
         }
+
         .snap-start {
             scroll-snap-align: start;
         }
@@ -55,19 +63,37 @@
 
         /* Heart animation */
         @keyframes heartBeat {
-            0% { transform: scale(0); opacity: 0; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(1); opacity: 0; }
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
         }
+
         .animate-heart {
             animation: heartBeat 0.8s ease-in-out forwards;
         }
 
         /* Spinning audio disc */
         @keyframes spin-slow {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
+
         .animate-spin-slow {
             animation: spin-slow 3s linear infinite;
         }

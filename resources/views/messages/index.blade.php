@@ -1,6 +1,10 @@
-<x-app-layout>
-    <div
-        class="max-w-6xl mx-auto h-[calc(100vh-80px)] flex border border-gray-800 rounded-lg overflow-hidden bg-black mt-4">
+{{-- <x-app-layout> --}}
+@extends('layouts.reels-main')
+
+@section('title', 'Reels')
+
+@section('content')
+    <div class="max-w-6xl mx-auto h-[calc(100vh-30px)] flex border border-gray-800 rounded-lg overflow-hidden bg-black mt-4">
 
         @include('messages.sidebar')
 
@@ -17,4 +21,5 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+    {{-- </x-app-layout> --}}
+@endsection

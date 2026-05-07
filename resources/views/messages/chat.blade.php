@@ -1,6 +1,10 @@
-<x-app-layout>
-    <div
-        class="max-w-6xl mx-auto h-[calc(100vh-80px)] flex border border-gray-800 rounded-lg overflow-hidden bg-black mt-4">
+{{-- <x-app-layout> --}}
+@extends('layouts.reels-main')
+
+@section('title', 'Reels')
+
+@section('content')
+    <div class="max-w-6xl mx-auto h-[calc(100vh-30px)] flex border border-gray-800 rounded-lg overflow-hidden bg-black mt-4">
 
         @include('messages.sidebar', ['activeReceiver' => $receiver])
 
@@ -96,10 +100,13 @@
                                     </a>
                                 </div>
                             @endif
+                            <div
+                                class="relative max-w-xs px-3 py-2 rounded-2xl {{ $msg->sender_id == auth()->id() ? 'bg-blue-600' : 'bg-zinc-800' }}">
+                                <p class="text-sm pb-1">{{ $msg->body }}</p>
 
-                            {{-- Actual Message Text --}}
-                            <div class="px-3 py-1">
-                                {{ $msg->body }}
+                                <span class="text-[10px] text-white/60 block text-right leading-none">
+                                    {{ $msg->created_at->format('h:i A') }}
+                                </span>
                             </div>
                         </div>
 
@@ -148,4 +155,5 @@
             }
         });
     </script>
-</x-app-layout>
+    {{-- </x-app-layout> --}}
+@endsection
