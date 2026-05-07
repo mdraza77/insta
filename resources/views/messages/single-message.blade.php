@@ -1,4 +1,4 @@
-<div class="flex {{ $msg->sender_id == auth()->id() ? 'justify-end' : 'justify-start' }}">
+<div id="msg-{{ $msg->id }}" class="flex {{ $msg->sender_id == auth()->id() ? 'justify-end' : 'justify-start' }}">
 
     <div title="{{ $msg->created_at->format('M d, Y h:i A') }}"
         class="max-w-xs md:max-w-md overflow-hidden 

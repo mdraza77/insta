@@ -160,4 +160,24 @@ class MessageController extends Controller
 
         return response()->json(['status' => 'success', 'message' => 'Post shared successfully!']);
     }
+
+    public function fetchMessages(Conversation $conversation, Request $request)
+    {
+        $lastId = $request->query('last_id');
+
+        $newMessages = $conversation->messages()
+            ->where('id', '>', $lastId)
+            ->get();
+
+        $html = '';
+        foreach ($newMessages as $msg) {
+            // Hum vahi single message view use karenge jo pehle banaya tha
+            $html .= view('messages.single-message', ['msg' => $msg])->render();
+        }
+
+        return response()->json([
+            'html' => $html,
+            'new_last_id' => $newMessages->last()?->id ?? $lastId
+        ]);
+    }
 }

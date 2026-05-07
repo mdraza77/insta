@@ -2,7 +2,7 @@
     <div class="h-full px-4 py-6 overflow-y-auto flex flex-col justify-between">
         <div>
             <a href="{{ route('dashboard') }}" class="flex items-center ps-2 mb-10">
-                <span class="text-2xl font-bold italic text-white tracking-tighter">Insta</span>
+                <span class="text-2xl font-bold text-white tracking-tighter">Zing</span>
             </a>
 
             <ul class="space-y-3 font-medium">
